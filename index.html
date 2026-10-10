@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aurora Iceland</title>
+<meta name="description" content="Theo dõi khả năng ngắm cực quang ở Iceland theo thời gian thực">
+<meta name="theme-color" content="#070b16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aurora">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo" aria-hidden="true"></span>
+    <div>
+      <h1>Aurora Iceland</h1>
+      <p class="sub" id="updated">Đang tải dữ liệu…</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" id="btn-refresh" aria-label="Làm mới">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-settings" aria-label="Cài đặt cảnh báo">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="alert-banner" class="alert-banner" hidden></div>
+<div id="install-hint" class="install-hint" hidden>
+  <strong>Cài app lên iPhone:</strong> bấm nút <b>Chia sẻ</b> <span aria-hidden="true">⬆︎</span> của Safari rồi chọn <b>Thêm vào MH chính</b>.
+  <button class="link-btn" id="hide-install">Đã hiểu</button>
+</div>
+
+<main>
+  <!-- TỔNG QUAN -->
+  <section class="view" id="view-home" data-view="home">
+    <div class="hero" id="hero">
+      <p class="hero-kicker">Khả năng thấy aurora tối nay</p>
+      <p class="hero-level" id="hero-level">—</p>
+      <p class="hero-text" id="hero-text">Đang phân tích Kp, gió Mặt Trời, mây và bóng tối…</p>
+      <div class="hero-meter"><span id="hero-meter-fill"></span></div>
+    </div>
+
+    <div class="now-card" id="now-card">
+      <div class="now-row">
+        <span class="now-label">Ngay lúc này</span>
+        <span class="chip" id="now-chip">—</span>
+      </div>
+      <p class="now-text" id="now-text">—</p>
+    </div>
+
+    <h2 class="sec">Các yếu tố</h2>
+    <div class="factors" id="factors"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Chỉ số Kp 3 ngày</h3>
+        <span class="muted small">NOAA SWPC · giờ Iceland</span>
+      </div>
+      <div id="kp-chart" class="kp-chart"></div>
+      <p class="muted small">Ở Iceland, Kp 2–3 đã có thể thấy khi trời quang và tối. Kp ≥ 5 là bão địa từ, aurora rất mạnh.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Bóng tối và Mặt Trăng</h3>
+        <span class="muted small">Reykjavík</span>
+      </div>
+      <div class="sky" id="sky"></div>
+    </div>
+  </section>
+
+  <!-- BẢN ĐỒ MÂY -->
+  <section class="view" id="view-map" data-view="map" hidden>
+    <div class="card map-card">
+      <div class="card-head">
+        <h3>Bản đồ mây Iceland</h3>
+        <span class="muted small" id="map-model">—</span>
+      </div>
+      <div class="seg" role="tablist" id="layer-seg">
+        <button data-layer="eff" class="on">Ảnh hưởng</button>
+        <button data-layer="low">Mây thấp</button>
+        <button data-layer="mid">Mây giữa</button>
+        <button data-layer="high">Mây cao</button>
+      </div>
+      <div class="map-wrap">
+        <canvas id="map" aria-label="Bản đồ mây Iceland"></canvas>
+        <div class="map-tip" id="map-tip" hidden></div>
+      </div>
+      <div class="time-row">
+        <button class="icon-btn small" id="t-prev" aria-label="Giờ trước">‹</button>
+        <input type="range" id="t-slider" min="0" max="24" value="0" aria-label="Chọn giờ">
+        <button class="icon-btn small" id="t-next" aria-label="Giờ sau">›</button>
+      </div>
+      <p class="time-label" id="t-label">—</p>
+      <div class="legend">
+        <span class="lg-bar"></span>
+        <div class="lg-ticks"><span>Quang</span><span>50%</span><span>Kín mây</span></div>
+      </div>
+      <p class="muted small">Chấm tròn là điểm ngắm, màu theo khả năng thấy aurora (xanh = cao, vàng = trung bình, xám = thấp). Chạm vào bản đồ để xem % mây tại chỗ đó. Dữ liệu dự báo theo giờ, cập nhật mỗi giờ.</p>
+      <a class="btn-out" href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">Đối chiếu bản đồ mây chính thức (Cục Khí tượng Iceland) ↗</a>
+    </div>
+  </section>
+
+  <!-- ĐIỂM NGẮM -->
+  <section class="view" id="view-spots" data-view="spots" hidden>
+    <div class="card" id="me-card">
+      <div class="card-head"><h3>Vị trí của tôi</h3></div>
+      <p class="muted small" id="me-text">Bật vị trí để biết mây và khả năng thấy aurora ngay chỗ bạn đứng, và điểm quang gần nhất.</p>
+      <button class="btn" id="btn-locate">Dùng vị trí của tôi</button>
+    </div>
+    <h2 class="sec">Điểm ngắm tối nay</h2>
+    <p class="muted small pad">Sắp xếp theo khả năng cao nhất trong đêm. Giờ là giờ Iceland.</p>
+    <div id="spot-list" class="spot-list"></div>
+  </section>
+
+  <!-- CAMERA & LINK -->
+  <section class="view" id="view-cams" data-view="cams" hidden>
+    <h2 class="sec">Camera trực tiếp</h2>
+    <div class="links">
+      <a class="link-card" href="https://lavacentre.is/live/northern-lights-web-cam/" target="_blank" rel="noopener">
+        <span class="lc-title">LAVA Centre – Northern Lights cam</span>
+        <span class="lc-sub">Hvolsvöllur, Nam Iceland · livestream bầu trời</span>
+      </a>
+      <a class="link-card" href="https://adventures.com/information/iceland-through-webcams" target="_blank" rel="noopener">
+        <span class="lc-title">Camera theo vùng</span>
+        <span class="lc-sub">Tây Nam, Nam, Đông, Bắc, Tây Fjords, Cao nguyên</span>
+      </a>
+    </div>
+    <h2 class="sec">Nguồn chính thức</h2>
+    <div class="links">
+      <a class="link-card" href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">
+        <span class="lc-title">Vedur.is – Dự báo aurora và mây</span>
+        <span class="lc-sub">Cục Khí tượng Iceland</span>
+      </a>
+      <a class="link-card" href="https://www.swpc.noaa.gov/products/aurora-30-minute-forecast" target="_blank" rel="noopener">
+        <span class="lc-title">NOAA – Dự báo aurora 30 phút</span>
+        <span class="lc-sub">Vòng cực quang hiện tại</span>
+      </a>
+      <a class="link-card" href="https://umferdin.is/en" target="_blank" rel="noopener">
+        <span class="lc-title">Umferdin.is – Tình trạng đường</span>
+        <span class="lc-sub">Kiểm tra đường trước khi lái xe đi săn aurora</span>
+      </a>
+      <a class="link-card" href="https://safetravel.is" target="_blank" rel="noopener">
+        <span class="lc-title">SafeTravel.is – Cảnh báo an toàn</span>
+        <span class="lc-sub">Thời tiết nguy hiểm, đóng đường · cấp cứu: 112</span>
+      </a>
+    </div>
+    <h2 class="sec">Cách đọc chỉ số</h2>
+    <div class="card guide">
+      <p><b>Kp</b> – độ mạnh nhiễu loạn địa từ (0–9). Iceland nằm ngay dưới vòng cực quang nên Kp 2–3 đã đủ.</p>
+      <p><b>Bz</b> – hướng từ trường gió Mặt Trời. <b>Âm (hướng nam)</b> mở “cửa” cho năng lượng vào Trái Đất: dưới −5 nT là tốt, dưới −10 nT là rất tốt.</p>
+      <p><b>Tốc độ gió Mặt Trời</b> – trên 500 km/s là thuận lợi. Dữ liệu đo ở cách Trái Đất 1,5 triệu km, tới nơi sau khoảng 30–60 phút.</p>
+      <p><b>OVATION</b> – mô hình NOAA ước tính xác suất có aurora phía trên Iceland trong khoảng 30–90 phút tới.</p>
+      <p><b>Mây</b> – yếu tố quyết định. Mây thấp và mây giữa che hoàn toàn; mây cao mỏng vẫn có thể nhìn xuyên.</p>
+      <p><b>Bóng tối và Trăng</b> – cần Mặt Trời dưới −12°. Trăng tròn làm aurora yếu khó thấy hơn.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Điều hướng">
+  <button data-tab="home" class="on"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8L4 8.8h6.1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Tổng quan</span></button>
+  <button data-tab="map"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-8 6 6 0 0 1 11.5 1.5A3.3 3.3 0 0 1 17.5 18z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Bản đồ mây</span></button>
+  <button data-tab="spots"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.2" fill="currentColor"/></svg><span>Điểm ngắm</span></button>
+  <button data-tab="cams"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 10l5-3v10l-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Camera</span></button>
+</nav>
+
+<dialog id="settings">
+  <form method="dialog" class="sheet">
+    <h3>Cảnh báo aurora</h3>
+    <p class="muted small">App kiểm tra mỗi 5 phút khi đang mở và báo khi khả năng thấy aurora đạt ngưỡng. iPhone chỉ cho web app báo khi app đang mở (hoặc chạy nền ngắn). Báo cáo sáng/tối vẫn đến qua Claude.</p>
+    <label class="row"><span>Bật cảnh báo</span><input type="checkbox" id="set-on"></label>
+    <label class="row col"><span>Báo khi khả năng đạt: <b id="set-th-val">50</b>/100</span>
+      <input type="range" id="set-th" min="20" max="80" step="5" value="50"></label>
+    <label class="row col"><span>Phạm vi</span>
+      <select id="set-scope">
+        <option value="any">Bất kỳ điểm ngắm nào</option>
+        <option value="me">Chỗ tôi đang đứng (cần vị trí)</option>
+      </select></label>
+    <p class="muted small" id="set-perm"></p>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="set-test" type="button">Thử thông báo</button>
+      <button class="btn" value="close">Xong</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="astro.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
