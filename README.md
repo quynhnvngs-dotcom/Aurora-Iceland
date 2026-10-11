@@ -2,7 +2,7 @@
 
 Web app (cài lên iPhone như một app) theo dõi khả năng ngắm cực quang ở Iceland theo thời gian thực, giao diện tiếng Việt.
 
-**Mở app:** https://quynhnvngs-dotcom.github.io/aurora-iceland/
+**Mở app:** https://quynhnvngs-dotcom.github.io/Aurora-Iceland/
 
 ## Cài lên iPhone
 1. Mở link trên bằng **Safari**.
