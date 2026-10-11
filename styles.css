@@ -235,7 +235,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 .cam-info { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 14px 0; }
 .cam-info b { font-size: 15px; }
 .cam-open { font-size: 13px; text-decoration: none; white-space: nowrap; }
-.cam-player .muted { padding: 4px 14px 12px; margin: 0; }
+.cam-player p.muted { padding: 4px 14px 12px; margin: 0; }
 .cam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
 .cam-tile { text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 11px 12px; border-radius: 13px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; }
 .cam-tile.on { border-color: rgba(62, 230, 161, .6); background: var(--panel2); }
