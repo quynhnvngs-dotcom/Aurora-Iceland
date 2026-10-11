@@ -800,19 +800,23 @@ function restoreCache() {
 
 
 /* ---------- camera trực tiếp ---------- */
+const YT = (id) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0`;
+const IPCAM = (alias) => `https://g0.ipcamlive.com/player/player.php?alias=${alias}&autoplay=1&mute=1`;
+// Camera nhúng được ngay trong app
 const CAMS = [
-  { id: 'lava', name: 'LAVA Centre – Northern Lights', where: 'Hvolsvöllur · Nam', embed: 'https://g0.ipcamlive.com/player/player.php?alias=northernlights&autoplay=1&mute=1', page: 'https://lavacentre.is/live/northern-lights-web-cam/', sure: true },
-  { id: 'perlan-n', name: 'Perlan – hướng Bắc', where: 'Reykjavík', page: 'https://livefromiceland.is/webcam/perlan-over-reykjavik-north/' },
-  { id: 'thingvallavatn', name: 'Þingvallavatn', where: 'Þingvellir', page: 'https://livefromiceland.is/webcam/thingvallavatn/' },
-  { id: 'skjaldbreidur', name: 'Skjaldbreiður', where: 'gần Þingvellir', page: 'https://livefromiceland.is/webcam/skjaldbreidur/' },
-  { id: 'akureyri', name: 'Akureyri', where: 'Bắc Iceland', page: 'https://livefromiceland.is/webcam/akureyri/' },
-  { id: 'hlidarfjall', name: 'Hlíðarfjall', where: 'Akureyri · Bắc', page: 'https://livefromiceland.is/webcam/akureyri-hlidarfjall/' },
-  { id: 'stykkisholmur', name: 'Stykkishólmur', where: 'Snæfellsnes · Tây', page: 'https://livefromiceland.is/webcam/stykkisholmur/' },
-  { id: 'hella', name: 'Hella – Golf', where: 'Nam Iceland', page: 'https://livefromiceland.is/webcam/hella-golfvollur/' },
-  { id: 'hekla', name: 'Hekla', where: 'Nam Iceland', page: 'https://livefromiceland.is/webcam/hekla/' },
-  { id: 'solheimajokull', name: 'Sólheimajökull', where: 'gần Vík · Nam', page: 'https://livefromiceland.is/webcam/solheimajokull/' },
-  { id: 'reykjanesviti', name: 'Reykjanesviti', where: 'Bán đảo Reykjanes', page: 'https://livefromiceland.is/webcam/reykjanesviti/' },
-  { id: 'heimaklettur', name: 'Vestmannaeyjar – Heimaklettur', where: 'Quần đảo Westman', page: 'https://livefromiceland.is/webcam/vestmannaeyjar-heimaklettur/' },
+  { id: 'lava', name: 'LAVA Centre – Northern Lights', where: 'Hvolsvöllur · Nam', embed: IPCAM('northernlights'), page: 'https://lavacentre.is/live/northern-lights-web-cam/', note: 'Camera chuyên ngắm aurora, chĩa lên bầu trời.' },
+  { id: 'perlan', name: 'Perlan – toàn cảnh Reykjavík', where: 'Reykjavík', embed: YT('2tRT7zfx-PI'), page: 'https://www.youtube.com/watch?v=2tRT7zfx-PI', note: 'YouTube Live từ đồi Öskjuhlíð.' },
+  { id: 'esja', name: 'Núi Esja', where: 'Reykjavík · nhìn về phía Bắc', embed: YT('4VR91TGYDz4'), page: 'https://www.youtube.com/watch?v=4VR91TGYDz4', note: 'Nhìn về phía Bắc, hướng aurora hay xuất hiện.' },
+  { id: 'midbakki', name: 'Cảng Miðbakki', where: 'Reykjavík', embed: IPCAM('midbakki'), page: 'https://g0.ipcamlive.com/player/player.php?alias=midbakki', note: 'Bến cảng trung tâm Reykjavík.' },
+  { id: 'akureyri', name: 'Vịnh Akureyri', where: 'Akureyri · Bắc', embed: YT('GXTycxKz_FQ'), page: 'https://www.youtube.com/watch?v=GXTycxKz_FQ', note: 'YouTube Live ở miền Bắc, thường ít mây hơn miền Nam.' },
+];
+// Camera chỉ mở được ở trang riêng (không cho nhúng)
+const CAM_LINKS = [
+  ['Þingvallavatn', 'Þingvellir', 'thingvallavatn'], ['Skjaldbreiður', 'gần Þingvellir', 'skjaldbreidur'],
+  ['Hlíðarfjall', 'Akureyri · Bắc', 'akureyri-hlidarfjall'], ['Stykkishólmur', 'Snæfellsnes · Tây', 'stykkisholmur'],
+  ['Hella – Golf', 'Nam Iceland', 'hella-golfvollur'], ['Hekla', 'Nam Iceland', 'hekla'],
+  ['Sólheimajökull', 'gần Vík · Nam', 'solheimajokull'], ['Reykjanesviti', 'Bán đảo Reykjanes', 'reykjanesviti'],
+  ['Vestmannaeyjar', 'Quần đảo Westman', 'vestmannaeyjar-heimaklettur'],
 ];
 function playCam(id) {
   const c = CAMS.find((x) => x.id === id) || CAMS[0];
@@ -820,23 +824,24 @@ function playCam(id) {
   $('#cam-name').textContent = c.name;
   $('#cam-where').textContent = c.where;
   $('#cam-open').href = c.page;
-  $('#cam-note').textContent = c.sure ? 'Luồng trực tiếp. Nếu không chạy, bấm vào khung hình hoặc “Mở riêng”.'
-    : 'Camera của Live From Iceland. Nếu khung hình trống hoặc báo lỗi, trang này không cho nhúng; bấm “Mở riêng” để xem.';
+  $('#cam-note').textContent = c.note + ' Nếu khung hình báo lỗi (luồng tạm tắt), bấm “Mở riêng”.';
   const f = $('#cam-frame');
   f.innerHTML = '';
   const ifr = document.createElement('iframe');
-  ifr.src = c.embed || c.page;
+  ifr.src = c.embed;
   ifr.title = 'Camera ' + c.name;
-  ifr.allow = 'autoplay; fullscreen; picture-in-picture';
-  ifr.referrerPolicy = 'no-referrer-when-downgrade';
-  if (!c.embed) ifr.classList.add('page');
+  ifr.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+  ifr.referrerPolicy = 'strict-origin-when-cross-origin';
   f.appendChild(ifr);
   document.querySelectorAll('.cam-tile').forEach((b) => b.classList.toggle('on', b.dataset.cam === c.id));
 }
 function setupCams() {
   $('#cam-grid').innerHTML = CAMS.map((c) => `<button class="cam-tile" data-cam="${c.id}">
-    <span class="ct-name">${c.name}</span><span class="ct-where">${c.where}</span>${c.sure ? '<span class="ct-live">● LIVE</span>' : ''}</button>`).join('');
-  document.querySelectorAll('.cam-tile').forEach((b) => b.addEventListener('click', () => { playCam(b.dataset.cam); $('#cam-frame').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+    <span class="ct-name">${c.name}</span><span class="ct-where">${c.where}</span><span class="ct-live">● LIVE trong app</span></button>`).join('') +
+    `<h3 class="cam-sub">Camera khác · mở trang riêng ↗</h3>` +
+    CAM_LINKS.map(([n, w, slug]) => `<a class="cam-tile link" href="https://livefromiceland.is/webcam/${slug}/" target="_blank" rel="noopener">
+    <span class="ct-name">${n} ↗</span><span class="ct-where">${w}</span></a>`).join('');
+  document.querySelectorAll('button.cam-tile').forEach((b) => b.addEventListener('click', () => { playCam(b.dataset.cam); $('#cam-frame').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
 }
 
 /* ---------- điều hướng ---------- */
@@ -845,7 +850,7 @@ function showTab(name) {
   document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
   if (name === 'map') { sizeCanvas(); drawMap(); }
   if (name === 'home') renderKpChart();
-  if (name === 'cams' && !$('#cam-frame iframe')) playCam(lsGet('cam') || 'lava');
+  if (name === 'cams' && !$('#cam-frame iframe')) playCam(CAMS.some((c) => c.id === lsGet('cam')) ? lsGet('cam') : 'lava');
   if (name !== 'cams') $('#cam-frame').innerHTML = ''; // dừng video khi rời tab để đỡ tốn dữ liệu
   window.scrollTo({ top: 0 });
   try { history.replaceState(null, '', '#' + name); } catch (_) { /* bỏ qua */ }
