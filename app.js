@@ -407,34 +407,104 @@ function renderFactors() {
   $('#factors').innerHTML = out.join('');
 }
 
+const kpColor = (k) => k >= 7 ? '#d94dff' : k >= 5 ? '#ff6b81' : k >= 4 ? '#ffc857' : k >= 3 ? '#3ee6a1' : k >= 2 ? '#2fa57a' : '#3d5a6e';
+const kpWord = (k) => k >= 7 ? 'Bão rất mạnh' : k >= 6 ? 'Bão mạnh' : k >= 5 ? 'Bão từ' : k >= 4 ? 'Hoạt động mạnh' : k >= 3 ? 'Khá tốt' : k >= 2 ? 'Yếu–vừa' : 'Yên tĩnh';
+const dayKey = (t) => new Date(t).toISOString().slice(0, 10);
+const dayLabel = (key) => {
+  const today = dayKey(Date.now());
+  const diff = Math.round((Date.parse(key) - Date.parse(today)) / (24 * HOUR));
+  return diff === 0 ? 'Hôm nay' : diff === -1 ? 'Hôm qua' : diff === 1 ? 'Ngày mai' : diff === 2 ? 'Ngày kia' : DAYS[new Date(key).getUTCDay()];
+};
+const kindText = (k) => k === 'observed' ? 'đã đo' : k === 'estimated' ? 'ước tính' : 'dự báo';
+const hh = (t) => pad2(new Date(t).getUTCHours());
+const hhLocal = (t) => pad2(new Date(t).getHours());
+
 function renderKpChart() {
-  const el = $('#kp-chart');
+  const el = $('#kp-chart'), daysEl = $('#kp-days'), sum = $('#kp-day-sum');
+  if (!S.kpFc.length) { el.innerHTML = '<p class="muted small">Chưa tải được dữ liệu Kp.</p>'; daysEl.innerHTML = ''; sum.textContent = ''; return; }
   const now = Date.now();
-  const rows = S.kpFc.filter((r) => r.t >= now - 24 * HOUR);
-  if (!rows.length) { el.innerHTML = '<p class="muted small">Chưa tải được dự báo Kp.</p>'; return; }
-  const W = Math.max(300, el.clientWidth || 340), H = 170, padL = 22, padB = 30, padT = 10;
-  const bw = (W - padL - 4) / rows.length;
-  const y = (k) => padT + (H - padT - padB) * (1 - k / 9);
-  const color = (k) => k >= 5 ? '#ff6b81' : k >= 4 ? '#ffc857' : k >= 3 ? '#3ee6a1' : '#3a8f73';
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Biểu đồ Kp">`;
-  for (const k of [0, 3, 5, 9]) s += `<line x1="${padL}" x2="${W}" y1="${y(k)}" y2="${y(k)}" stroke="#22304f" stroke-width="1"/><text x="2" y="${y(k) + 3}">${k}</text>`;
-  rows.forEach((r, n) => {
-    const x = padL + n * bw + 1.5, h = Math.max(2, y(0) - y(r.kp)), pred = r.kind === 'predicted';
-    s += `<rect x="${x}" y="${y(r.kp)}" width="${Math.max(2, bw - 3)}" height="${h}" rx="2" fill="${color(r.kp)}" opacity="${pred ? 0.6 : 1}"><title>${fmtDayIS(new Date(r.t))} ${fmtIS(new Date(r.t))}: Kp ${num(r.kp)}${r.scale ? ' (' + r.scale + ')' : ''}${pred ? ' · dự báo' : ''}</title></rect>`;
-    const d = new Date(r.t);
-    if (d.getUTCHours() === 0) {
-      s += `<line x1="${x - 1.5}" x2="${x - 1.5}" y1="${padT}" y2="${y(0)}" stroke="#22304f"/><text x="${x + 2}" y="${H - 14}">${fmtDayIS(d)}</text>`;
-    }
+  // Gom theo ngày (giờ Iceland = UTC)
+  const byDay = new Map();
+  for (const r of S.kpFc) { const k = dayKey(r.t); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(r); }
+  const keys = [...byDay.keys()].sort();
+  const today = dayKey(now);
+  if (!S.kpDay || !byDay.has(S.kpDay)) S.kpDay = byDay.has(today) ? today : keys[keys.length - 1];
+
+  daysEl.innerHTML = keys.map((k) => {
+    const rows = byDay.get(k), mx = Math.max(...rows.map((r) => r.kp));
+    const pred = rows.every((r) => r.kind === 'predicted'), d = new Date(k);
+    return `<button role="tab" data-day="${k}" class="${k === S.kpDay ? 'on' : ''} ${k === today ? 'today' : ''}" aria-selected="${k === S.kpDay}">
+      <span class="dl">${dayLabel(k)}</span><span class="dd">${d.getUTCDate()}/${d.getUTCMonth() + 1}</span>
+      <span class="dk" style="color:${kpColor(mx)}">${num(mx)}</span><span class="dt">${pred ? 'dự báo' : 'cao nhất'}</span></button>`;
+  }).join('');
+  daysEl.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { S.kpDay = b.dataset.day; renderKpChart(); }));
+  const sel = daysEl.querySelector('button.on');
+  if (sel && !renderKpChart._scrolled) { renderKpChart._scrolled = true; sel.scrollIntoView({ inline: 'center', block: 'nearest' }); }
+
+  // Biểu đồ chi tiết 8 khung 3 giờ của ngày đã chọn
+  const day = S.kpDay, base = Date.parse(day + 'T00:00:00Z');
+  const slots = Array.from({ length: 8 }, (_, i) => {
+    const t = base + i * 3 * HOUR;
+    return byDay.get(day).find((r) => r.t === t) || { t, kp: null };
   });
-  const nIdx = rows.findIndex((r) => r.t <= now && now < r.t + 3 * HOUR);
-  if (nIdx >= 0) {
-    const x = padL + (nIdx + (now - rows[nIdx].t) / (3 * HOUR)) * bw;
-    s += `<line x1="${x}" x2="${x}" y1="${padT - 4}" y2="${y(0)}" stroke="#e8eefc" stroke-dasharray="3 3"/><text x="${clamp(x - 12, 0, W - 30)}" y="${H - 2}" style="fill:#e8eefc">bây giờ</text>`;
+  const W = Math.max(300, el.clientWidth || 340), H = 214, padL = 20, padT = 22, padB = 52;
+  const bw = (W - padL) / 8, y = (k) => padT + (H - padT - padB) * (1 - k / 9), y0 = y(0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Kp theo giờ ngày ${day}">`;
+  // Nền tối: các khung giờ Mặt Trời dưới −6° ở Reykjavík
+  slots.forEach((sl, i) => {
+    const mid = new Date(sl.t + 1.5 * HOUR);
+    if (Astro.sunAltitude(mid, REYKJAVIK.lat, REYKJAVIK.lon) < -6) s += `<rect x="${padL + i * bw}" y="${padT - 18}" width="${bw}" height="${y0 - padT + 18}" fill="rgba(124,140,255,.07)"/>`;
+  });
+  for (const k of [0, 3, 5, 7, 9]) s += `<line x1="${padL}" x2="${W}" y1="${y(k)}" y2="${y(k)}" stroke="#22304f" stroke-width="1" ${k === 5 ? 'stroke-dasharray="4 3"' : ''}/><text x="2" y="${y(k) + 3}">${k}</text>`;
+  slots.forEach((sl, i) => {
+    const x = padL + i * bw, cx = x + bw / 2, w = Math.min(30, bw - 8);
+    if (sl.kp != null) {
+      const op = sl.kind === 'predicted' ? 0.55 : sl.kind === 'estimated' ? 0.8 : 1;
+      s += `<rect x="${cx - w / 2}" y="${y(sl.kp)}" width="${w}" height="${Math.max(2, y0 - y(sl.kp))}" rx="4" fill="${kpColor(sl.kp)}" opacity="${op}"${sl.kind === 'predicted' ? ' stroke="' + kpColor(sl.kp) + '" stroke-dasharray="3 2"' : ''}/>`;
+      s += `<text x="${cx}" y="${y(sl.kp) - 5}" text-anchor="middle" class="kv">${num(sl.kp)}</text>`;
+      if (sl.scale) s += `<text x="${cx}" y="${y(sl.kp) - 17}" text-anchor="middle" class="ks">${sl.scale}</text>`;
+    } else s += `<text x="${cx}" y="${y0 - 4}" text-anchor="middle">–</text>`;
+    s += `<text x="${cx}" y="${H - 34}" text-anchor="middle" class="hx">${hh(sl.t)}–${pad2((new Date(sl.t).getUTCHours() + 3) % 24)}</text>`;
+    if (tzOffsetMin) s += `<text x="${cx}" y="${H - 20}" text-anchor="middle" class="hv">${hhLocal(sl.t)}–${hhLocal(sl.t + 3 * HOUR)}</text>`;
+  });
+  s += `<text x="${padL}" y="${H - 4}" class="hv">${tzOffsetMin ? `Giờ Iceland / giờ ${localTag === 'VN' ? 'Việt Nam' : 'máy'}` : 'Giờ Iceland'}</text>`;
+  if (now >= base && now < base + 24 * HOUR) {
+    const x = padL + ((now - base) / (24 * HOUR)) * (W - padL);
+    s += `<line x1="${x}" x2="${x}" y1="${padT - 18}" y2="${y0}" stroke="#e8eefc" stroke-dasharray="3 3"/><text x="${clamp(x + 3, 0, W - 44)}" y="${padT - 10}" style="fill:#e8eefc">bây giờ</text>`;
   }
-  s += '</svg>';
-  const tonight = rows.filter((r) => r.t >= now - 3 * HOUR && r.t <= now + 15 * HOUR);
-  const maxT = tonight.length ? Math.max(...tonight.map((r) => r.kp)) : null;
-  el.innerHTML = s + (maxT != null ? `<p class="small" style="margin:6px 0 0">Kp cao nhất trong 15 giờ tới: <b>${num(maxT)}</b>. Cột mờ là dự báo.</p>` : '');
+  el.innerHTML = s + '</svg>';
+
+  // Tóm tắt ngày đã chọn
+  const valid = slots.filter((x) => x.kp != null);
+  if (valid.length) {
+    const mx = valid.reduce((a, b) => (b.kp > a.kp ? b : a));
+    const night = valid.filter((x) => Astro.sunAltitude(new Date(x.t + 1.5 * HOUR), REYKJAVIK.lat, REYKJAVIK.lon) < -6);
+    const nmx = night.length ? night.reduce((a, b) => (b.kp > a.kp ? b : a)) : null;
+    const span = (x) => `${hh(x.t)}–${pad2((new Date(x.t).getUTCHours() + 3) % 24)}h`;
+    sum.innerHTML = `<b>${dayLabel(day)} ${new Date(day).getUTCDate()}/${new Date(day).getUTCMonth() + 1}:</b> cao nhất Kp <b style="color:${kpColor(mx.kp)}">${num(mx.kp)}</b>${mx.scale ? ' (' + mx.scale + ')' : ''} lúc ${span(mx)} (${kindText(mx.kind)}) · ${kpWord(mx.kp)}.` +
+      (nmx ? ` Trong giờ tối: Kp ${num(nmx.kp)} lúc ${span(nmx)}.` : '');
+  } else sum.textContent = '';
+}
+
+async function loadOutlook27() {
+  const r = await fetch(NOAA + '/text/27-day-outlook.txt', { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const txt = await r.text(), M = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  const rows = [];
+  for (const line of txt.split('\n')) {
+    const m = line.match(/^\s*(\d{4})\s+([A-Z][a-z]{2})\s+(\d{1,2})\s+(\d+)\s+(\d+)\s+(\d+)/);
+    if (m && M[m[2]] != null) rows.push({ t: Date.UTC(+m[1], M[m[2]], +m[3]), ap: +m[5], kp: +m[6] });
+  }
+  if (rows.length) { S.outlook = rows; lsSet('outlook', { at: Date.now(), rows }); }
+}
+function renderOutlook() {
+  const el = $('#outlook');
+  if (!S.outlook || !S.outlook.length) { el.innerHTML = '<p class="muted small">Chưa tải được dự báo dài hạn.</p>'; return; }
+  el.innerHTML = S.outlook.map((r) => {
+    const d = new Date(r.t);
+    return `<div class="cal-d${r.kp >= 4 ? ' hi' : ''}" title="Ap ${r.ap}"><span class="cw">${DAYS[d.getUTCDay()]}</span><span class="cn">${d.getUTCDate()}/${d.getUTCMonth() + 1}</span>
+      <span class="ck" style="color:${kpColor(r.kp)}">${r.kp}</span></div>`;
+  }).join('');
 }
 
 function moonSVG(phase, frac) {
@@ -687,6 +757,7 @@ function renderAll() {
   const ev = S.meteo ? evaluateAll() : [];
   if (ev.length) { renderHome(ev); renderSpots(ev); renderMe(ev); checkAlert(ev); }
   else { renderFactors(); renderKpChart(); renderSky(); }
+  renderOutlook();
   if (!$('#view-map').hidden) drawMap();
   const parts = [];
   const t = Math.max(...Object.values(S.fetchedAt).filter(Boolean), 0);
@@ -705,6 +776,7 @@ async function refresh(force) {
   const jobs = [task('gió Mặt Trời', loadSolarWind, 'sw'), task('Kp', loadKpNow, 'kp'), task('OVATION', loadOvation, 'ov')];
   if (force || !S.kpFc.length || Date.now() - (S.fetchedAt.kpFc || 0) > 30 * MIN) jobs.push(task('dự báo Kp', loadKpFc, 'kpFc'));
   jobs.push(task('mây', () => loadMeteo(force), 'meteo'));
+  if (force || !S.outlook || Date.now() - (S.fetchedAt.outlook || 0) > 6 * HOUR) jobs.push(task('dự báo 27 ngày', loadOutlook27, 'outlook'));
   await Promise.all(jobs);
   lsSet('rt', { kpNow: S.kpNow, mag: S.mag, wind: S.wind, ovation: S.ovation, ovTime: S.ovTime, at: Date.now() });
   btn.classList.remove('spin');
@@ -712,6 +784,7 @@ async function refresh(force) {
 }
 function restoreCache() {
   const kf = lsGet('kpFc'); if (kf) { S.kpFc = kf.rows; S.fetchedAt.kpFc = kf.at; }
+  const ol = lsGet('outlook'); if (ol) { S.outlook = ol.rows; S.fetchedAt.outlook = ol.at; }
   const rt = lsGet('rt');
   if (rt) {
     const d = (x) => x ? new Date(x) : null;
@@ -725,12 +798,55 @@ function restoreCache() {
   const me = lsGet('me'); if (me && Date.now() - me.at < 6 * HOUR) S.me = { lat: me.lat, lon: me.lon };
 }
 
+
+/* ---------- camera trực tiếp ---------- */
+const CAMS = [
+  { id: 'lava', name: 'LAVA Centre – Northern Lights', where: 'Hvolsvöllur · Nam', embed: 'https://g0.ipcamlive.com/player/player.php?alias=northernlights&autoplay=1&mute=1', page: 'https://lavacentre.is/live/northern-lights-web-cam/', sure: true },
+  { id: 'perlan-n', name: 'Perlan – hướng Bắc', where: 'Reykjavík', page: 'https://livefromiceland.is/webcam/perlan-over-reykjavik-north/' },
+  { id: 'thingvallavatn', name: 'Þingvallavatn', where: 'Þingvellir', page: 'https://livefromiceland.is/webcam/thingvallavatn/' },
+  { id: 'skjaldbreidur', name: 'Skjaldbreiður', where: 'gần Þingvellir', page: 'https://livefromiceland.is/webcam/skjaldbreidur/' },
+  { id: 'akureyri', name: 'Akureyri', where: 'Bắc Iceland', page: 'https://livefromiceland.is/webcam/akureyri/' },
+  { id: 'hlidarfjall', name: 'Hlíðarfjall', where: 'Akureyri · Bắc', page: 'https://livefromiceland.is/webcam/akureyri-hlidarfjall/' },
+  { id: 'stykkisholmur', name: 'Stykkishólmur', where: 'Snæfellsnes · Tây', page: 'https://livefromiceland.is/webcam/stykkisholmur/' },
+  { id: 'hella', name: 'Hella – Golf', where: 'Nam Iceland', page: 'https://livefromiceland.is/webcam/hella-golfvollur/' },
+  { id: 'hekla', name: 'Hekla', where: 'Nam Iceland', page: 'https://livefromiceland.is/webcam/hekla/' },
+  { id: 'solheimajokull', name: 'Sólheimajökull', where: 'gần Vík · Nam', page: 'https://livefromiceland.is/webcam/solheimajokull/' },
+  { id: 'reykjanesviti', name: 'Reykjanesviti', where: 'Bán đảo Reykjanes', page: 'https://livefromiceland.is/webcam/reykjanesviti/' },
+  { id: 'heimaklettur', name: 'Vestmannaeyjar – Heimaklettur', where: 'Quần đảo Westman', page: 'https://livefromiceland.is/webcam/vestmannaeyjar-heimaklettur/' },
+];
+function playCam(id) {
+  const c = CAMS.find((x) => x.id === id) || CAMS[0];
+  S.cam = c.id; lsSet('cam', c.id);
+  $('#cam-name').textContent = c.name;
+  $('#cam-where').textContent = c.where;
+  $('#cam-open').href = c.page;
+  $('#cam-note').textContent = c.sure ? 'Luồng trực tiếp. Nếu không chạy, bấm vào khung hình hoặc “Mở riêng”.'
+    : 'Camera của Live From Iceland. Nếu khung hình trống hoặc báo lỗi, trang này không cho nhúng; bấm “Mở riêng” để xem.';
+  const f = $('#cam-frame');
+  f.innerHTML = '';
+  const ifr = document.createElement('iframe');
+  ifr.src = c.embed || c.page;
+  ifr.title = 'Camera ' + c.name;
+  ifr.allow = 'autoplay; fullscreen; picture-in-picture';
+  ifr.referrerPolicy = 'no-referrer-when-downgrade';
+  if (!c.embed) ifr.classList.add('page');
+  f.appendChild(ifr);
+  document.querySelectorAll('.cam-tile').forEach((b) => b.classList.toggle('on', b.dataset.cam === c.id));
+}
+function setupCams() {
+  $('#cam-grid').innerHTML = CAMS.map((c) => `<button class="cam-tile" data-cam="${c.id}">
+    <span class="ct-name">${c.name}</span><span class="ct-where">${c.where}</span>${c.sure ? '<span class="ct-live">● LIVE</span>' : ''}</button>`).join('');
+  document.querySelectorAll('.cam-tile').forEach((b) => b.addEventListener('click', () => { playCam(b.dataset.cam); $('#cam-frame').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+}
+
 /* ---------- điều hướng ---------- */
 function showTab(name) {
   document.querySelectorAll('.view').forEach((v) => { v.hidden = v.dataset.view !== name; });
   document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
   if (name === 'map') { sizeCanvas(); drawMap(); }
   if (name === 'home') renderKpChart();
+  if (name === 'cams' && !$('#cam-frame iframe')) playCam(lsGet('cam') || 'lava');
+  if (name !== 'cams') $('#cam-frame').innerHTML = ''; // dừng video khi rời tab để đỡ tốn dữ liệu
   window.scrollTo({ top: 0 });
   try { history.replaceState(null, '', '#' + name); } catch (_) { /* bỏ qua */ }
 }
@@ -753,6 +869,7 @@ function setup() {
     if (!document.hidden && Date.now() - (S.fetchedAt.sw || 0) > 4 * MIN) refresh(false);
   });
   setupSettings();
+  setupCams();
   // Gợi ý cài app trên iPhone (Safari, chưa cài)
   const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !standalone && !lsGet('hideInstall')) $('#install-hint').hidden = false;

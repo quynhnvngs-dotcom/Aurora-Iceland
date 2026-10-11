@@ -61,13 +61,28 @@
     <h2 class="sec">Các yếu tố</h2>
     <div class="factors" id="factors"></div>
 
-    <div class="card">
+    <div class="card" id="kp-card">
       <div class="card-head">
-        <h3>Chỉ số Kp 3 ngày</h3>
-        <span class="muted small">NOAA SWPC · giờ Iceland</span>
+        <h3>Chỉ số Kp theo ngày</h3>
+        <span class="muted small">NOAA SWPC</span>
       </div>
+      <div class="kp-days" id="kp-days" role="tablist" aria-label="Chọn ngày"></div>
+      <p class="kp-day-sum" id="kp-day-sum"></p>
       <div id="kp-chart" class="kp-chart"></div>
-      <p class="muted small">Ở Iceland, Kp 2–3 đã có thể thấy khi trời quang và tối. Kp ≥ 5 là bão địa từ, aurora rất mạnh.</p>
+      <div class="kp-legend">
+        <span><i class="sw obs"></i>Đã đo</span><span><i class="sw est"></i>Ước tính</span><span><i class="sw pred"></i>Dự báo</span>
+        <span><i class="sw night"></i>Trời tối ở Iceland</span>
+      </div>
+      <p class="muted small">Mỗi cột là 3 giờ. Dòng trên là giờ Iceland, dòng dưới là giờ Việt Nam. Ở Iceland, Kp 2–3 đã có thể thấy khi trời quang và tối; Kp ≥ 5 là bão địa từ, aurora rất mạnh.</p>
+    </div>
+
+    <div class="card" id="outlook-card">
+      <div class="card-head">
+        <h3>Dự báo dài hạn 27 ngày</h3>
+        <span class="muted small">NOAA · Kp cao nhất mỗi ngày</span>
+      </div>
+      <div class="cal" id="outlook"></div>
+      <p class="muted small">Dự báo dài hạn dựa trên chu kỳ tự quay 27 ngày của Mặt Trời. Chỉ dùng để lên kế hoạch; độ chính xác thấp hơn dự báo 3 ngày.</p>
     </div>
 
     <div class="card">
@@ -126,16 +141,16 @@
   <!-- CAMERA & LINK -->
   <section class="view" id="view-cams" data-view="cams" hidden>
     <h2 class="sec">Camera trực tiếp</h2>
-    <div class="links">
-      <a class="link-card" href="https://lavacentre.is/live/northern-lights-web-cam/" target="_blank" rel="noopener">
-        <span class="lc-title">LAVA Centre – Northern Lights cam</span>
-        <span class="lc-sub">Hvolsvöllur, Nam Iceland · livestream bầu trời</span>
-      </a>
-      <a class="link-card" href="https://adventures.com/information/iceland-through-webcams" target="_blank" rel="noopener">
-        <span class="lc-title">Camera theo vùng</span>
-        <span class="lc-sub">Tây Nam, Nam, Đông, Bắc, Tây Fjords, Cao nguyên</span>
-      </a>
+    <div class="cam-player card">
+      <div class="cam-frame" id="cam-frame"></div>
+      <div class="cam-info">
+        <div><b id="cam-name">—</b><span class="muted small" id="cam-where"></span></div>
+        <a class="cam-open" id="cam-open" href="#" target="_blank" rel="noopener">Mở riêng ↗</a>
+      </div>
+      <p class="muted small" id="cam-note"></p>
     </div>
+    <p class="muted small pad">Chọn camera để xem ngay trong app. Ban đêm hình sẽ tối; aurora hiện thành vệt sáng xanh trên bầu trời.</p>
+    <div class="cam-grid" id="cam-grid"></div>
     <h2 class="sec">Nguồn chính thức</h2>
     <div class="links">
       <a class="link-card" href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">
