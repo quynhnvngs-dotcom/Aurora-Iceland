@@ -805,8 +805,11 @@ const IPCAM = (alias) => `https://g0.ipcamlive.com/player/player.php?alias=${ali
 // Camera nhúng được ngay trong app
 const CAMS = [
   { id: 'lava', name: 'LAVA Centre – Northern Lights', where: 'Hvolsvöllur · Nam', embed: IPCAM('northernlights'), page: 'https://lavacentre.is/live/northern-lights-web-cam/', note: 'Camera chuyên ngắm aurora, chĩa lên bầu trời.' },
-  { id: 'perlan', name: 'Perlan – toàn cảnh Reykjavík', where: 'Reykjavík', embed: YT('2tRT7zfx-PI'), page: 'https://www.youtube.com/watch?v=2tRT7zfx-PI', note: 'YouTube Live từ đồi Öskjuhlíð.' },
-  { id: 'esja', name: 'Núi Esja', where: 'Reykjavík · nhìn về phía Bắc', embed: YT('4VR91TGYDz4'), page: 'https://www.youtube.com/watch?v=4VR91TGYDz4', note: 'Nhìn về phía Bắc, hướng aurora hay xuất hiện.' },
+  { id: 'allsky', name: 'Aðaldalshraun – camera toàn trời', where: 'gần Húsavík · Bắc', embed: 'https://www.youtube-nocookie.com/embed/live_stream?channel=UC8XYuAeP8-tigZF88tUcocg&autoplay=1&mute=1&playsinline=1&rel=0', page: 'https://netnurds.com/', note: 'Camera chuyên aurora, nhìn toàn bộ bầu trời (mắt cá).' },
+  { id: 'allsky-img', name: 'Aðaldalshraun – ảnh toàn trời', where: 'gần Húsavík · Bắc', img: 'https://netnurds.com/indi-allsky/image.jpg', page: 'https://netnurds.com/', note: 'Ảnh chụp phơi sáng lâu, thấy aurora rõ hơn mắt thường. Tự làm mới mỗi phút.' },
+  { id: 'landhotel1', name: 'Landhotel – camera 1', where: 'gần Hella · Nam', embed: IPCAM('6501dd6068492'), page: 'https://landhotel.is/index.php/northernlights-live', note: 'Camera ngắm aurora của khách sạn Landhotel.' },
+  { id: 'landhotel2', name: 'Landhotel – camera 2', where: 'gần Hella · Nam', embed: IPCAM('6565ed34e367a'), page: 'https://landhotel.is/index.php/northernlights-live', note: 'Góc nhìn thứ hai của Landhotel.' },
+  { id: 'aurora-rvk', name: 'Aurora Reykjavík', where: 'Reykjavík', embed: YT('exshoGpNXZk'), page: 'https://www.youtube.com/watch?v=exshoGpNXZk', note: 'YouTube Live ở Reykjavík.' },
   { id: 'midbakki', name: 'Cảng Miðbakki', where: 'Reykjavík', embed: IPCAM('midbakki'), page: 'https://g0.ipcamlive.com/player/player.php?alias=midbakki', note: 'Bến cảng trung tâm Reykjavík.' },
   { id: 'akureyri', name: 'Vịnh Akureyri', where: 'Akureyri · Bắc', embed: YT('GXTycxKz_FQ'), page: 'https://www.youtube.com/watch?v=GXTycxKz_FQ', note: 'YouTube Live ở miền Bắc, thường ít mây hơn miền Nam.' },
 ];
@@ -827,6 +830,18 @@ function playCam(id) {
   $('#cam-note').textContent = c.note + ' Nếu khung hình báo lỗi (luồng tạm tắt), bấm “Mở riêng”.';
   const f = $('#cam-frame');
   f.innerHTML = '';
+  clearInterval(playCam._t);
+  if (c.img) {
+    const im = document.createElement('img');
+    im.alt = 'Ảnh ' + c.name;
+    const load = () => { im.src = c.img + '?v=' + Date.now(); };
+    im.onerror = () => { f.dataset.err = 'Không tải được ảnh, thử lại sau.'; };
+    load();
+    playCam._t = setInterval(() => { if (!document.hidden && S.cam === c.id) load(); }, 60e3);
+    f.appendChild(im);
+    document.querySelectorAll('.cam-tile').forEach((b) => b.classList.toggle('on', b.dataset.cam === c.id));
+    return;
+  }
   const ifr = document.createElement('iframe');
   ifr.src = c.embed;
   ifr.title = 'Camera ' + c.name;
@@ -837,7 +852,7 @@ function playCam(id) {
 }
 function setupCams() {
   $('#cam-grid').innerHTML = CAMS.map((c) => `<button class="cam-tile" data-cam="${c.id}">
-    <span class="ct-name">${c.name}</span><span class="ct-where">${c.where}</span><span class="ct-live">● LIVE trong app</span></button>`).join('') +
+    <span class="ct-name">${c.name}</span><span class="ct-where">${c.where}</span><span class="ct-live">${c.img ? '● ẢNH MỚI' : '● LIVE'} trong app</span></button>`).join('') +
     `<h3 class="cam-sub">Camera khác · mở trang riêng ↗</h3>` +
     CAM_LINKS.map(([n, w, slug]) => `<a class="cam-tile link" href="https://livefromiceland.is/webcam/${slug}/" target="_blank" rel="noopener">
     <span class="ct-name">${n} ↗</span><span class="ct-where">${w}</span></a>`).join('');
@@ -851,7 +866,7 @@ function showTab(name) {
   if (name === 'map') { sizeCanvas(); drawMap(); }
   if (name === 'home') renderKpChart();
   if (name === 'cams' && !$('#cam-frame iframe')) playCam(CAMS.some((c) => c.id === lsGet('cam')) ? lsGet('cam') : 'lava');
-  if (name !== 'cams') $('#cam-frame').innerHTML = ''; // dừng video khi rời tab để đỡ tốn dữ liệu
+  if (name !== 'cams') { $('#cam-frame').innerHTML = ''; clearInterval(playCam._t); } // dừng video khi rời tab để đỡ tốn dữ liệu
   window.scrollTo({ top: 0 });
   try { history.replaceState(null, '', '#' + name); } catch (_) { /* bỏ qua */ }
 }
