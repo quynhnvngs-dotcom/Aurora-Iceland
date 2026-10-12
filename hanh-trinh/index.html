@@ -476,7 +476,7 @@ let FLIGHTS=[
    {transit:"Nối chuyến Copenhagen T3 · 2g50 · hành lý gửi thẳng"},
    {fl:"SK2595",a:"CPH",an:"Copenhagen T3",at:"14:45",ad:"26/10",b:"KEF",bn:"Keflavík",bt:"17:20",bd:"26/10",dur:"3g35"}],
   kv:[["Hạng","Economy"],["Ký gửi","1 kiện 23kg, tổng 3 chiều ≤158cm"],["Xách tay","1 kiện 8kg, 55×40×23cm"],["Đồ cá nhân","1 túi 40×30×15cm, để dưới ghế"],["Phòng chờ","Không cần, đi thẳng ra cửa ở CPH"]],
-  ok:["SAS làm thủ tục ở nhà ga T1 sân bay Munich (đúng như vé). Ghi chú cũ ghi T2 là sai.","SK2595 bay thứ Hai, nên ngày 26/10 có chuyến. Giờ trên vé là giờ mùa đông, sau khi châu Âu lùi đồng hồ.","Lịch mùa hè của SK662 là 10:20. Vé ghi 10:15, nên xem lại trạng thái chuyến 24 tiếng trước."],
+  ok:["Sân bay Munich: đến nhà ga T1 (đúng như vé, ghi chú cũ ghi T2 là nhầm).","Chuyến Copenhagen → Iceland không bay hằng ngày, nhưng 26/10 (thứ Hai) có chuyến.","Giờ trên vé đã tính theo giờ châu Âu sau khi lùi đồng hồ ngày 25/10, cứ theo giờ trên vé.","Giờ cất cánh Munich có thể lệch 10:15 hoặc 10:20. Sáng 25/10 mở app SAS hoặc email kiểm tra lại cho chắc."],
   note:"Chặng ngắn trong châu Âu không phát chăn gối, mang gối chữ U."},
  {air:"Air China",col:"#B8222E",segs:[
    {fl:"CA808",a:"KEF",an:"Keflavík",at:"13:45",ad:"31/10",b:"CPH",bn:"Copenhagen T3",bt:"17:55",bd:"31/10",dur:"3g10"},
@@ -763,7 +763,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T19:22:01";
+var BUILD="2026-10-12T23:48:19";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
