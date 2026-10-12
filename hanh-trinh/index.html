@@ -763,7 +763,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T19:03:24";
+var BUILD="2026-10-12T19:22:01";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
@@ -875,7 +875,18 @@ function drawMap(m){
  if(typeof L==="undefined"){$("#map").innerHTML='<div class="muted" style="padding:16px">Chưa tải được bản đồ, kiểm tra kết nối mạng rồi mở lại tab này.</div>';return}
  if(!mapObj){mapObj=L.map("map",{zoomControl:true,attributionControl:true,scrollWheelZoom:false});
   if(window.ResizeObserver){new ResizeObserver(function(){if(mapObj)mapObj.invalidateSize()}).observe($("#map"))}
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(mapObj)}
+  var SRC=[
+   ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles &copy; Esri"}],
+   ["https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}],
+   ["https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,subdomains:"abc",attribution:"&copy; OpenStreetMap, SRTM | OpenTopoMap"}]];
+  var si=0,tl=null;
+  var useSrc=function(i){if(tl)tl.remove();si=i;var ok=0,bad=0;
+   tl=L.tileLayer(SRC[i][0],SRC[i][1]);
+   tl.on("tileload",function(){ok++});
+   tl.on("tileerror",function(){bad++;if(ok===0&&bad>=3&&si<SRC.length-1){useSrc(si+1)}});
+   tl.addTo(mapObj);
+   setTimeout(function(){if(si===i&&ok===0&&si<SRC.length-1)useSrc(si+1)},6000)};
+  useSrc(0)}
  if(mapLayer)mapLayer.remove();mapLayer=L.layerGroup().addTo(mapObj);
  var ll=m.pts.map(function(p){return [p[1],p[2]]});
  for(var i=1;i<m.pts.length;i++){var p=m.pts[i];
