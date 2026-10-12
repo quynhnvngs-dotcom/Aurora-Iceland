@@ -240,6 +240,9 @@ button.btn{font-family:inherit}
 .me-dot img{width:100%;height:100%;object-fit:cover;display:block}
 @keyframes mepulse{0%{box-shadow:0 0 0 0 rgba(224,83,138,.6),0 2px 8px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 14px rgba(224,83,138,0),0 2px 8px rgba(0,0,0,.3)}}
 @media (prefers-reduced-motion:reduce){.me-dot{animation:none}}
+.share-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:2px dashed var(--line);font-size:12.5px}
+.sw{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;cursor:pointer}
+.sw input{width:20px;height:20px;accent-color:var(--berry)}
 </style>
 </head>
 <body>
@@ -711,7 +714,7 @@ function onPos(pos){var wx=GPS&&GPS.wx;GPS={lat:pos.coords.latitude,lon:pos.coor
 function onErr(err){if(err.code===1){stopWatch();store.set("qi-gps-on",false);GPS=null;renderGps("Qi chưa cho phép vị trí. Vào Cài đặt > Quyền riêng tư > Dịch vụ định vị > Safari để bật lại.")}
  else if(!GPS)renderGps("Đang chờ tín hiệu định vị…")}
 function startWatch(){if(!("geolocation" in navigator)||WATCH!==null)return;if(!GPS)renderGps("Đang lấy vị trí…");
- WATCH=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,timeout:30000,maximumAge:15000})}
+ WATCH=navigator.geolocation.watchPosition(function(p){onPos(p)},onErr,{enableHighAccuracy:true,timeout:30000,maximumAge:15000})}
 function stopWatch(){if(WATCH!==null){navigator.geolocation.clearWatch(WATCH);WATCH=null}}
 function getGps(){stopWatch();startWatch()}
 /* tạm dừng khi thoát app để đỡ hao pin, mở lại thì theo dõi tiếp */
@@ -747,6 +750,7 @@ if(OWNER&&store.get("qi-gps-on",false))startWatch();
  av.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0},1500);
   if(n>=5){n=0;OWNER=!OWNER;store.set("qi-owner",OWNER);
    if(!OWNER){stopWatch();GPS=null;store.set("qi-gps-on",false);if(typeof meMk!=="undefined"&&meMk){meMk.remove();meMk=null}}
+   if(typeof startPull==="function"){if(OWNER)clearInterval(shareTimer);else{SHARED=store.get("qi-shared",null);startPull()}}
    renderGps();var tt=$("#toast");tt.textContent=OWNER?"Đã bật chế độ máy của Qi":"Đã tắt chế độ máy của Qi";tt.hidden=false;setTimeout(function(){tt.hidden=true},2200)}});
 })();
 if("serviceWorker" in navigator){
@@ -756,7 +760,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T17:49:00";
+var BUILD="2026-10-12T18:53:46";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
@@ -897,9 +901,67 @@ document.querySelector('nav.tabs button[data-tab="map"]').addEventListener("clic
 
 /* chấm "Qi đang ở đây" trên bản đồ, cập nhật theo thời gian thực */
 var meMk=null;
-function updateMe(){if(!mapObj||!GPS||!OWNER||typeof L==="undefined")return;
- if(!meMk){meMk=L.marker([GPS.lat,GPS.lon],{zIndexOffset:1000,icon:L.divIcon({className:"",html:'<span class="me-dot"><img src="icons/icon-192.png" alt=""></span>',iconSize:[40,40],iconAnchor:[20,20]})}).bindPopup("Qi đang ở đây").addTo(mapObj)}
- else meMk.setLatLng([GPS.lat,GPS.lon])}
+function updateMe(){var src=OWNER?GPS:(typeof SHARED!=="undefined"?SHARED:null);if(!mapObj||!src||typeof L==="undefined")return;
+ if(!meMk){meMk=L.marker([src.lat,src.lon],{zIndexOffset:1000,icon:L.divIcon({className:"",html:'<span class="me-dot"><img src="icons/icon-192.png" alt=""></span>',iconSize:[40,40],iconAnchor:[20,20]})}).bindPopup("Qi ở đây").addTo(mapObj)}
+ else meMk.setLatLng([src.lat,src.lon])}
+
+/* ===== Chia sẻ vị trí của Qi cho người thân (mã hóa bằng mật khẩu) ===== */
+var TOPIC="hanhtrinh-qi-8f3c1e9a4b7d2605";
+var SHARED=store.get("qi-shared",null),shareKey=null,lastPub=null,shareTimer=null;
+function shareOn(){return store.get("qi-share",true)}
+async function getShareKey(){if(shareKey)return shareKey;var s=store.get("qi-key",null);if(!s)return null;
+ try{shareKey=await crypto.subtle.importKey("raw",u8(s.k),{name:"AES-GCM"},false,["encrypt","decrypt"])}catch(e){shareKey=null}return shareKey}
+async function publishPos(){
+ if(!OWNER||!GPS||!shareOn())return;var key=await getShareKey();if(!key)return;
+ var moved=lastPub?hav(lastPub.lat,lastPub.lon,GPS.lat,GPS.lon):999;
+ if(lastPub&&moved<0.2&&Date.now()-lastPub.at<3*60e3)return;
+ var iv=crypto.getRandomValues(new Uint8Array(12));
+ var pt=new TextEncoder().encode(JSON.stringify({lat:+GPS.lat.toFixed(5),lon:+GPS.lon.toFixed(5),acc:Math.round(GPS.acc||0),at:GPS.at}));
+ var ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,pt));
+ var all=new Uint8Array(12+ct.length);all.set(iv);all.set(ct,12);
+ try{var r=await fetch("https://ntfy.sh/"+TOPIC,{method:"POST",body:b64(all)});if(r.ok){lastPub={lat:GPS.lat,lon:GPS.lon,at:Date.now()};store.set("qi-lastpub",Date.now());renderGps()}}catch(e){}
+}
+async function pullShared(){
+ if(OWNER)return;var key=await getShareKey();if(!key){renderGps();return}
+ try{var txt=await (await fetch("https://ntfy.sh/"+TOPIC+"/json?poll=1&since=12h",{cache:"no-store"})).text();
+  var lines=txt.trim().split("\n").reverse();
+  for(var i=0;i<lines.length;i++){try{var m=JSON.parse(lines[i]);if(m.event!=="message"||!m.message)continue;
+    var all=u8(m.message);var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:all.slice(0,12)},key,all.slice(12));
+    var d=JSON.parse(new TextDecoder().decode(pt));if(!SHARED||d.at>=SHARED.at){SHARED=d;store.set("qi-shared",d)}break}catch(e){}}
+ }catch(e){}
+ renderGps();if(typeof updateMe==="function")updateMe();
+}
+function ago(t){var m=Math.round((Date.now()-t)/60000);return m<1?"vừa xong":m<60?m+" phút trước":m<1440?Math.round(m/60)+" giờ trước":Math.round(m/1440)+" ngày trước"}
+function nearestTxt(lat,lon){var best=null;for(var k in P){var dk=hav(lat,lon,P[k].lat,P[k].lon);if(!best||dk<best[1])best=[k,dk]}
+ return (best[1]<1?"Ngay tại ":best[1]<60?"Gần ":"Cách ")+P[best[0]].n+(best[1]>=1?" · "+(best[1]<10?best[1].toFixed(1):Math.round(best[1]))+" km":"")}
+var _renderGpsOwner=renderGps;
+renderGps=function(msg){
+ var el=$("#h-gps");
+ if(OWNER){_renderGpsOwner(msg);
+  if(GPS&&store.get("qi-key",null)){var lp=store.get("qi-lastpub",0);
+   el.insertAdjacentHTML("beforeend",`<div class="share-row"><label class="sw"><input type="checkbox" id="share-tg" ${shareOn()?"checked":""}><span>Chia sẻ vị trí với người thân</span></label><span class="muted">${shareOn()?(lp?"đã gửi "+ago(lp):"đang gửi…"):"đang tắt"}</span></div>`)}
+  else if(GPS){el.insertAdjacentHTML("beforeend",`<div class="share-row muted">Mở khóa bằng mật khẩu ở tab Bỏ túi để chia sẻ vị trí với người thân.</div>`)}
+  return}
+ el.hidden=false;
+ if(!store.get("qi-key",null)){el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Qi đang ở đâu</div><div style="font-size:13.5px">Nhập mật khẩu ở tab <b>Bỏ túi</b> để xem vị trí của Qi.</div></div></div>`;return}
+ if(!SHARED){el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Qi đang ở đâu</div><div style="font-size:13.5px">Chưa có vị trí mới. Vị trí hiện ra khi Qi mở app trên điện thoại.</div></div></div>`;return}
+ var old=Date.now()-SHARED.at>3*3600e3;
+ el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Qi đang ở đâu · <span class="${old?"muted":"live"}">${ago(SHARED.at)}</span></div>
+  <div style="font-weight:700">${esc(nearestTxt(SHARED.lat,SHARED.lon))}</div>
+  ${old?`<div class="muted" style="font-size:12.5px">Đây là vị trí lần cuối Qi mở app.</div>`:""}
+  <div class="btns"><a class="btn mint" href="https://www.google.com/maps/search/?api=1&query=${SHARED.lat},${SHARED.lon}" target="_blank" rel="noopener">Xem trên Google Maps</a><button type="button" class="btn sky" id="see-map">Xem trên bản đồ app</button></div></div></div>`;
+};
+document.addEventListener("change",function(e){if(e.target&&e.target.id==="share-tg"){store.set("qi-share",e.target.checked);if(e.target.checked){lastPub=null;publishPos()}renderGps()}});
+document.addEventListener("click",function(e){if(e.target.closest("#see-map")){var tb=document.querySelector('nav.tabs button[data-tab="map"]');if(tb)tb.click();setTimeout(function(){if(mapObj&&SHARED)mapObj.setView([SHARED.lat,SHARED.lon],12)},700)}});
+/* gắn vào luồng vị trí của chủ máy */
+var _onPos=onPos;onPos=function(pos){_onPos(pos);publishPos()};
+/* người thân: lấy vị trí mới mỗi phút khi đang mở app */
+function startPull(){if(OWNER)return;pullShared();clearInterval(shareTimer);shareTimer=setInterval(function(){if(!document.hidden)pullShared()},60000)}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!OWNER)pullShared()});
+startPull();
+
+var _applySecret=applySecret;applySecret=function(d){_applySecret(d);shareKey=null;setTimeout(function(){shareKey=null;if(OWNER){lastPub=null;publishPos();renderGps()}else startPull()},1000)};
+document.getElementById("relock").addEventListener("click",function(){shareKey=null;setTimeout(renderGps,50)});
 
 buildPreview();renderRoute();renderFlights();renderPlaces();renderCheck();renderAll();
 const lastTab=store.get("qi-tab","home");if(lastTab!=="home"){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`);if(b)b.click()}
