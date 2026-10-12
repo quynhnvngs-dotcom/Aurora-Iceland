@@ -680,7 +680,11 @@ $("#relock").addEventListener("click",()=>{store.set("qi-key",null);FLIGHTS=PUB.
 /* boot */
 renderGps();renderHome();renderPlaces();fetchWx();setInterval(()=>fetchWx(),30*60e3);
 if(store.get("qi-gps-on",false)&&navigator.permissions){navigator.permissions.query({name:"geolocation"}).then(p=>{if(p.state==="granted")getGps()}).catch(()=>{})}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator){
+ var hadSW=!!navigator.serviceWorker.controller,reloaded=false;
+ navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{reg.update();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{})})}).catch(()=>{});
+ navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadSW&&!reloaded){reloaded=true;location.reload()}});
+}
 
 buildPreview();renderRoute();renderFlights();renderPlaces();renderCheck();renderAll();
 const lastTab=store.get("qi-tab","home");if(lastTab!=="home"){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`);if(b)b.click()}

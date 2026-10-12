@@ -1,5 +1,5 @@
 // Service worker riêng cho Hành trình - Qi: mở được khi mất mạng, luôn lấy bản mới khi có mạng
-const VERSION = 'hanh-trinh-v1';
+const VERSION = 'hanh-trinh-v2';
 const SHELL = ['./', 'index.html', 'secret.json', 'manifest.webmanifest', 'icons/qi-avatar.jpg', 'icons/apple-touch-icon.png', 'icons/icon-192.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -12,9 +12,10 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  e.respondWith(fetch(e.request, { cache: 'no-cache' }).then((r) => {
-    const copy = r.clone();
-    caches.open(VERSION).then((c) => c.put(e.request, copy));
+  // Luôn hỏi máy chủ bản mới nhất (tạo yêu cầu mới theo URL để Safari không bỏ qua)
+  const fresh = new Request(url.href, { cache: 'no-store', credentials: 'same-origin' });
+  e.respondWith(fetch(fresh).then((r) => {
+    if (r.ok) { const copy = r.clone(); caches.open(VERSION).then((c) => c.put(e.request, copy)); }
     return r;
-  }).catch(() => caches.match(e.request).then((r) => r || caches.match('index.html'))));
+  }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((r) => r || caches.match('index.html'))));
 });
