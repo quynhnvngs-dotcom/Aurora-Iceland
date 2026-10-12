@@ -688,7 +688,10 @@ async function fetchWx(force){
 var GPS=null;
 var hav=(a,b,c,d)=>{const R=6371,t=Math.PI/180,x=Math.sin((c-a)*t/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin((d-b)*t/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
 var PIN='<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M12 22s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z" fill="#E0538A"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>';
+var OWNER=store.get("qi-owner",false);
 function renderGps(msg){const el=$("#h-gps");
+ if(!OWNER){el.hidden=true;if(typeof stopWatch==="function")stopWatch();return}
+ el.hidden=false;
  if(!("geolocation" in navigator)){el.hidden=true;return}
  if(!GPS){el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Vị trí thật</div><div style="font-size:13.5px">Bật để xem thời tiết ngay chỗ Qi đứng và điểm hành trình gần nhất.</div><div class="btns"><button class="btn peach" type="button" id="gps-btn">Dùng vị trí của tôi</button></div>${msg?`<div class="muted" style="font-size:12px;margin-top:6px">${esc(msg)}</div>`:""}</div></div>`;return}
  let best=null;for(const k in P){const dk=hav(GPS.lat,GPS.lon,P[k].lat,P[k].lon);if(!best||dk<best[1])best=[k,dk]}
@@ -738,7 +741,14 @@ $("#relock").addEventListener("click",()=>{store.set("qi-key",null);FLIGHTS=PUB.
 
 /* boot */
 renderGps();renderHome();renderPlaces();fetchWx();setInterval(()=>fetchWx(),30*60e3);
-if(store.get("qi-gps-on",false))startWatch();
+if(OWNER&&store.get("qi-gps-on",false))startWatch();
+/* chạm ảnh chibi 5 lần liên tiếp để bật/tắt "máy của Qi" (chỉ lưu trên máy này) */
+(function(){var n=0,t=null,av=document.querySelector(".hero .qi");if(!av)return;av.style.cursor="pointer";
+ av.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0},1500);
+  if(n>=5){n=0;OWNER=!OWNER;store.set("qi-owner",OWNER);
+   if(!OWNER){stopWatch();GPS=null;store.set("qi-gps-on",false);if(typeof meMk!=="undefined"&&meMk){meMk.remove();meMk=null}}
+   renderGps();var tt=$("#toast");tt.textContent=OWNER?"Đã bật chế độ máy của Qi":"Đã tắt chế độ máy của Qi";tt.hidden=false;setTimeout(function(){tt.hidden=true},2200)}});
+})();
 if("serviceWorker" in navigator){
  var hadSW=!!navigator.serviceWorker.controller,reloaded=false;
  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{reg.update();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{})})}).catch(()=>{});
@@ -746,7 +756,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T17:37:22";
+var BUILD="2026-10-12T17:49:00";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
@@ -887,7 +897,7 @@ document.querySelector('nav.tabs button[data-tab="map"]').addEventListener("clic
 
 /* chấm "Qi đang ở đây" trên bản đồ, cập nhật theo thời gian thực */
 var meMk=null;
-function updateMe(){if(!mapObj||!GPS||typeof L==="undefined")return;
+function updateMe(){if(!mapObj||!GPS||!OWNER||typeof L==="undefined")return;
  if(!meMk){meMk=L.marker([GPS.lat,GPS.lon],{zIndexOffset:1000,icon:L.divIcon({className:"",html:'<span class="me-dot"><img src="icons/icon-192.png" alt=""></span>',iconSize:[40,40],iconAnchor:[20,20]})}).bindPopup("Qi đang ở đây").addTo(mapObj)}
  else meMk.setLatLng([GPS.lat,GPS.lon])}
 
