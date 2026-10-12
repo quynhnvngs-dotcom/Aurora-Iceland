@@ -1,7 +1,7 @@
 // Service worker: cho app mở được ngoài mạng và tự cập nhật khi có bản mới
-const VERSION = 'aurora-v5';
+const VERSION = 'aurora-v6';
 const SHELL = [
-  './', 'index.html', 'styles.css', 'app.js', 'astro.js', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css?v=6', 'app.js?v=6', 'astro.js?v=6', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 
@@ -18,7 +18,7 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   // Giao diện app: lấy bản mới khi có mạng, dùng bản đã lưu khi mất mạng
   if (url.origin === self.location.origin) {
-    e.respondWith(fetch(e.request).then((r) => {
+    e.respondWith(fetch(e.request, { cache: 'no-cache' }).then((r) => {
       const copy = r.clone();
       caches.open(VERSION).then((c) => c.put(e.request, copy));
       return r;
