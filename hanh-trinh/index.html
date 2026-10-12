@@ -243,6 +243,7 @@ button.btn{font-family:inherit}
 .share-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:2px dashed var(--line);font-size:12.5px}
 .sw{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;cursor:pointer}
 .sw input{width:20px;height:20px;accent-color:var(--berry)}
+.hero .qi{touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 </style>
 </head>
 <body>
@@ -747,7 +748,9 @@ renderGps();renderHome();renderPlaces();fetchWx();setInterval(()=>fetchWx(),30*6
 if(OWNER&&store.get("qi-gps-on",false))startWatch();
 /* chạm ảnh chibi 5 lần liên tiếp để bật/tắt "máy của Qi" (chỉ lưu trên máy này) */
 (function(){var n=0,t=null,av=document.querySelector(".hero .qi");if(!av)return;av.style.cursor="pointer";
- av.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0},1500);
+ av.style.touchAction="manipulation";av.style.webkitTouchCallout="none";av.style.webkitUserSelect="none";av.style.userSelect="none";av.draggable=false;
+ av.addEventListener("pointerup",function(e){e.preventDefault();n++;clearTimeout(t);t=setTimeout(function(){n=0},2000);
+  if(n>=2&&n<5){var tt=$("#toast");tt.textContent="Chạm thêm "+(5-n)+" lần";tt.hidden=false;clearTimeout(av._tt);av._tt=setTimeout(function(){tt.hidden=true},900)}
   if(n>=5){n=0;OWNER=!OWNER;store.set("qi-owner",OWNER);
    if(!OWNER){stopWatch();GPS=null;store.set("qi-gps-on",false);if(typeof meMk!=="undefined"&&meMk){meMk.remove();meMk=null}}
    if(typeof startPull==="function"){if(OWNER)clearInterval(shareTimer);else{SHARED=store.get("qi-shared",null);startPull()}}
@@ -760,7 +763,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T18:53:46";
+var BUILD="2026-10-12T19:03:24";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
