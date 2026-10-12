@@ -236,6 +236,10 @@ img{max-width:100%}
 .cs-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:12px}
 .cs-foot .btn{flex:none}
 button.btn{font-family:inherit}
+.me-dot{display:block;width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 4px rgba(224,83,138,.45),0 2px 8px rgba(0,0,0,.3);overflow:hidden;animation:mepulse 2s ease-out infinite}
+.me-dot img{width:100%;height:100%;object-fit:cover;display:block}
+@keyframes mepulse{0%{box-shadow:0 0 0 0 rgba(224,83,138,.6),0 2px 8px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 14px rgba(224,83,138,0),0 2px 8px rgba(0,0,0,.3)}}
+@media (prefers-reduced-motion:reduce){.me-dot{animation:none}}
 </style>
 </head>
 <body>
@@ -690,17 +694,26 @@ function renderGps(msg){const el=$("#h-gps");
  let best=null;for(const k in P){const dk=hav(GPS.lat,GPS.lon,P[k].lat,P[k].lon);if(!best||dk<best[1])best=[k,dk]}
  var near=best[1]<1?"Ngay tại":best[1]<60?"Gần":"Cách";
  const w=GPS.wx;const wl=w?`<div class="wx-temp" style="font-size:26px">${r0(w.t)}°<small> ${WMO(w.code)[0]}${w.hi!=null?` · ${r0(w.hi)}° / ${r0(w.lo)}°C`:""}</small></div>`:`<div class="muted" style="font-size:13px">Đang lấy thời tiết…</div>`;
- el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Vị trí thật · <span class="live">${new Date(GPS.at).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})}</span></div>
+ el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Vị trí thật · <span class="live">${(function(){var sec=Math.round((Date.now()-GPS.at)/1000);return sec<60?"đang theo dõi":"cập nhật "+Math.round(sec/60)+" phút trước"})()}</span></div>
   <div style="font-weight:700">${near} ${esc(P[best[0]].n)}${best[1]>=1?` · ${best[1]<10?best[1].toFixed(1):r0(best[1])} km`:""}</div>${wl}
-  <div class="btns"><button class="btn sky" type="button" id="gps-btn">Cập nhật vị trí</button><a class="btn mint" href="https://www.google.com/maps/search/?api=1&query=${GPS.lat},${GPS.lon}" target="_blank" rel="noopener">Xem bản đồ</a></div></div></div>`;
+  <div class="btns">${GPS.acc?`<span class="muted" style="font-size:12px;align-self:center">sai số ~${r0(GPS.acc)} m</span>`:""}<a class="btn mint" href="https://www.google.com/maps/search/?api=1&query=${GPS.lat},${GPS.lon}" target="_blank" rel="noopener">Xem bản đồ</a></div></div></div>`;
 }
-function getGps(){renderGps("Đang lấy vị trí…");
- navigator.geolocation.getCurrentPosition(async pos=>{
-  GPS={lat:pos.coords.latitude,lon:pos.coords.longitude,at:Date.now()};store.set("qi-gps-on",true);renderGps();
-  try{const j=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${GPS.lat.toFixed(3)}&longitude=${GPS.lon.toFixed(3)}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`)).json();
-   GPS.wx={t:j.current.temperature_2m,code:j.current.weather_code,hi:j.daily.temperature_2m_max[0],lo:j.daily.temperature_2m_min[0]};renderGps()}catch(e){}
- },err=>{store.set("qi-gps-on",false);renderGps(err.code===1?"Qi chưa cho phép vị trí. Vào Cài đặt > Safari > Vị trí để bật lại.":"Chưa lấy được vị trí, thử lại sau.")},{enableHighAccuracy:false,timeout:15000,maximumAge:600000});
-}
+var WATCH=null,lastWx=null;
+function gpsWx(){if(!GPS)return;var moved=lastWx?hav(lastWx.lat,lastWx.lon,GPS.lat,GPS.lon):999;
+ if(lastWx&&moved<5&&Date.now()-lastWx.at<15*60e3)return;lastWx={lat:GPS.lat,lon:GPS.lon,at:Date.now()};
+ fetch(`https://api.open-meteo.com/v1/forecast?latitude=${GPS.lat.toFixed(3)}&longitude=${GPS.lon.toFixed(3)}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`).then(r=>r.json()).then(j=>{
+  GPS.wx={t:j.current.temperature_2m,code:j.current.weather_code,hi:j.daily.temperature_2m_max[0],lo:j.daily.temperature_2m_min[0]};renderGps()}).catch(()=>{lastWx=null})}
+function onPos(pos){var wx=GPS&&GPS.wx;GPS={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:pos.coords.accuracy,at:Date.now(),wx:wx};
+ store.set("qi-gps-on",true);renderGps();gpsWx();if(typeof updateMe==="function")updateMe()}
+function onErr(err){if(err.code===1){stopWatch();store.set("qi-gps-on",false);GPS=null;renderGps("Qi chưa cho phép vị trí. Vào Cài đặt > Quyền riêng tư > Dịch vụ định vị > Safari để bật lại.")}
+ else if(!GPS)renderGps("Đang chờ tín hiệu định vị…")}
+function startWatch(){if(!("geolocation" in navigator)||WATCH!==null)return;if(!GPS)renderGps("Đang lấy vị trí…");
+ WATCH=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,timeout:30000,maximumAge:15000})}
+function stopWatch(){if(WATCH!==null){navigator.geolocation.clearWatch(WATCH);WATCH=null}}
+function getGps(){stopWatch();startWatch()}
+/* tạm dừng khi thoát app để đỡ hao pin, mở lại thì theo dõi tiếp */
+document.addEventListener("visibilitychange",()=>{if(document.hidden)stopWatch();else if(store.get("qi-gps-on",false))startWatch()});
+setInterval(()=>{if(GPS)renderGps()},20000);
 document.addEventListener("click",e=>{if(e.target.closest("#gps-btn"))getGps()});
 
 /* private unlock */
@@ -725,7 +738,7 @@ $("#relock").addEventListener("click",()=>{store.set("qi-key",null);FLIGHTS=PUB.
 
 /* boot */
 renderGps();renderHome();renderPlaces();fetchWx();setInterval(()=>fetchWx(),30*60e3);
-if(store.get("qi-gps-on",false)&&navigator.permissions){navigator.permissions.query({name:"geolocation"}).then(p=>{if(p.state==="granted")getGps()}).catch(()=>{})}
+if(store.get("qi-gps-on",false))startWatch();
 if("serviceWorker" in navigator){
  var hadSW=!!navigator.serviceWorker.controller,reloaded=false;
  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{reg.update();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{})})}).catch(()=>{});
@@ -733,7 +746,7 @@ if("serviceWorker" in navigator){
 }
 
 /* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
-var BUILD="2026-10-12T17:04:51";
+var BUILD="2026-10-12T17:37:22";
 (function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
  fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
   var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
@@ -856,7 +869,7 @@ function drawMap(m){
   seen[key]={n:nums,m:mk};p._m=mk});
  var bounds=L.latLngBounds(ll).pad(0.15);
  var fit=function(){mapObj.invalidateSize();mapObj.fitBounds(bounds,{maxZoom:14,animate:false})};
- fit();setTimeout(fit,250);setTimeout(fit,800);
+ fit();setTimeout(fit,250);setTimeout(fit,800);updateMe();
 }
 function initMapTab(){
  if(!$("#map-days").children.length){
@@ -871,6 +884,12 @@ document.addEventListener("click",function(e){
  var g=e.target.closest(".day-map");if(g){mapDay=g.dataset.d;var tb=document.querySelector('nav.tabs button[data-tab="map"]');if(tb)tb.click()}
 });
 document.querySelector('nav.tabs button[data-tab="map"]').addEventListener("click",initMapTab);
+
+/* chấm "Qi đang ở đây" trên bản đồ, cập nhật theo thời gian thực */
+var meMk=null;
+function updateMe(){if(!mapObj||!GPS||typeof L==="undefined")return;
+ if(!meMk){meMk=L.marker([GPS.lat,GPS.lon],{zIndexOffset:1000,icon:L.divIcon({className:"",html:'<span class="me-dot"><img src="icons/icon-192.png" alt=""></span>',iconSize:[40,40],iconAnchor:[20,20]})}).bindPopup("Qi đang ở đây").addTo(mapObj)}
+ else meMk.setLatLng([GPS.lat,GPS.lon])}
 
 buildPreview();renderRoute();renderFlights();renderPlaces();renderCheck();renderAll();
 const lastTab=store.get("qi-tab","home");if(lastTab!=="home"){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`);if(b)b.click()}
