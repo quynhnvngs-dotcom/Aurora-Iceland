@@ -346,20 +346,20 @@ const CC={VN:["Việt Nam","#E0484F"],QA:["Qatar","#8A1C4A"],CH:["Thụy Sĩ","#
 const P={
  hcm:{n:"TP.HCM",cc:"VN",lat:10.82,lon:106.66,hi:32,lo:25,w:"rain",note:"Cuối mùa mưa, chiều hay có mưa rào."},
  doh:{n:"Doha (quá cảnh)",cc:"QA",lat:25.27,lon:51.61,hi:33,lo:24,w:"sun",note:"Nóng khô, nhưng sân bay lạnh máy lạnh, giữ áo khoác mỏng."},
- zrh:{n:"Zurich",cc:"CH",lat:47.37,lon:8.54,hi:13,lo:5,w:"cloud",note:"Se lạnh như Đà Lạt mùa đông, sáng sớm có sương.",cam:"Zurich live webcam"},
- ber:{n:"Đèo Bernina 2.253m",cc:"CH",lat:46.41,lon:10.02,hi:3,lo:-4,w:"snow",note:"Quanh 0°C, có thể gặp tuyết đầu mùa. Mặc giữ nhiệt, mũ, găng.",cam:"Bernina Pass Ospizio live webcam"},
- tir:{n:"Tirano (Ý)",cc:"IT",lat:46.22,lon:10.17,hi:16,lo:6,w:"sun",note:"Ấm hơn hẳn trên đèo, cởi bớt áo khoác.",cam:"Tirano live webcam"},
- int:{n:"Interlaken · Brienz",cc:"CH",lat:46.69,lon:7.86,hi:13,lo:4,w:"cloud",note:"Du thuyền hồ Brienz gió lạnh trên mặt nước.",cam:"Interlaken live webcam"},
- mur:{n:"Mürren · Grindelwald",cc:"CH",lat:46.56,lon:7.89,hi:8,lo:1,w:"cloud",note:"Làng trên núi, lạnh hơn thung lũng 5–6°C.",cam:"Grindelwald Eiger live webcam"},
- luz:{n:"Lucerne · Thác Rhine",cc:"CH",lat:47.05,lon:8.31,hi:13,lo:5,w:"cloud",note:"Hay có sương mù sáng trên hồ.",cam:"Lucerne Chapel Bridge live webcam"},
- muc:{n:"Munich",cc:"DE",lat:48.14,lon:11.58,hi:12,lo:3,w:"cloud",note:"Tối lạnh, Night tour cần áo ấm.",cam:"Munich Marienplatz live webcam"},
- neu:{n:"Neuschwanstein · Mittenwald",cc:"DE",lat:47.56,lon:10.75,hi:11,lo:2,w:"cloud",note:"Cầu Marienbrücke gió mạnh.",cam:"Neuschwanstein live webcam"},
- rkv:{n:"Reykjavík",cc:"IS",lat:64.15,lon:-21.94,hi:6,lo:1,w:"wind",note:"Gió mạnh, mưa ngang. Trời sáng khoảng 9h–17h20. Có cơ hội ngắm cực quang.",cam:"Reykjavik live webcam",lfi:true},
- vik:{n:"Vík · Reynisfjara",cc:"IS",lat:63.42,lon:-19.01,hi:6,lo:2,w:"wind",note:"Bãi biển đen có sóng lừa, đứng xa mép nước.",cam:"Vik Iceland live webcam",lfi:true},
- jok:{n:"Jökulsárlón · hang băng",cc:"IS",lat:64.05,lon:-16.18,hi:5,lo:0,w:"snow",note:"Lạnh và gió nhất chuyến. Giày chống nước, găng tay.",cam:"Jokulsarlon live webcam",lfi:true},
- gc:{n:"Golden Circle · Geysir",cc:"IS",lat:64.31,lon:-20.30,hi:5,lo:-1,w:"wind",note:"Đường có thể đóng băng buổi sáng.",cam:"Geysir Gullfoss live webcam",lfi:true},
- grv:{n:"Grindavík · Blue Lagoon",cc:"IS",lat:63.88,lon:-22.45,hi:6,lo:1,w:"wind",note:"Nước hồ khoảng 38°C, gió ngoài trời rất lạnh khi lên bờ.",cam:"Blue Lagoon Grindavik live webcam",lfi:true},
- snf:{n:"Snæfellsnes · Kirkjufell",cc:"IS",lat:64.93,lon:-23.31,hi:6,lo:1,w:"wind",note:"Bán đảo hứng gió biển, mưa đổi liên tục. Mặc chống nước cả ngày.",cam:"Kirkjufell Snaefellsnes live webcam",lfi:true},
+ zrh:{n:"Zurich",cc:"CH",cams:[["Live cam Zurich 360°", "https://zuerichtourismus.roundshot.com/stadthaus"]],lat:47.37,lon:8.54,hi:13,lo:5,w:"cloud",note:"Se lạnh như Đà Lạt mùa đông, sáng sớm có sương."},
+ ber:{n:"Đèo Bernina 2.253m",cc:"CH",cams:[["Live cam Diavolezza (đèo Bernina)", "https://www.feratel.com/en/webcams/switzerland/pontresina.html"]],lat:46.41,lon:10.02,hi:3,lo:-4,w:"snow",note:"Quanh 0°C, có thể gặp tuyết đầu mùa. Mặc giữ nhiệt, mũ, găng."},
+ tir:{n:"Tirano (Ý)",cc:"IT",lat:46.22,lon:10.17,hi:16,lo:6,w:"sun",note:"Ấm hơn hẳn trên đèo, cởi bớt áo khoác."},
+ int:{n:"Interlaken · Brienz",cc:"CH",cams:[["Live cam Harder Kulm", "https://www.jungfrau.ch/de-ch/live/webcams/harder-kulm-interlaken/"]],lat:46.69,lon:7.86,hi:13,lo:4,w:"cloud",note:"Du thuyền hồ Brienz gió lạnh trên mặt nước."},
+ mur:{n:"Mürren · Grindelwald",cc:"CH",cams:[["Live cam Mürren", "https://www.feratel.com/en/webcams/switzerland/bern/muerren-piz-gloria"], ["Live cam Grindelwald", "https://www.jungfrau.ch/de-ch/live/webcams/grindelwald-terminal/"]],lat:46.56,lon:7.89,hi:8,lo:1,w:"cloud",note:"Làng trên núi, lạnh hơn thung lũng 5–6°C."},
+ luz:{n:"Lucerne · Thác Rhine",cc:"CH",cams:[["Live cam cầu Chapel", "https://www.luzern.com/de/webcam/kapellbruecke"]],lat:47.05,lon:8.31,hi:13,lo:5,w:"cloud",note:"Hay có sương mù sáng trên hồ."},
+ muc:{n:"Munich",cc:"DE",cams:[["Live cam Marienplatz", "https://www.muenchen.de/en/sights/webcam-live-munich-marienplatz-olympiapark-and-more"]],lat:48.14,lon:11.58,hi:12,lo:3,w:"cloud",note:"Tối lạnh, Night tour cần áo ấm."},
+ neu:{n:"Neuschwanstein · Mittenwald",cc:"DE",cams:[["Live cam Schwangau", "https://www.feratel.com/en/webcams/germany/schwangau-neuschwanstein.html"]],lat:47.56,lon:10.75,hi:11,lo:2,w:"cloud",note:"Cầu Marienbrücke gió mạnh."},
+ rkv:{n:"Reykjavík",cc:"IS",cams:[["Live cam Reykjavík (Perlan)", "https://livefromiceland.is/webcam/perlan-over-reykjavik-south/"], ["Live cam Austurvöllur", "https://livefromiceland.is/webcam/austurvollur/"]],lat:64.15,lon:-21.94,hi:6,lo:1,w:"wind",note:"Gió mạnh, mưa ngang. Trời sáng khoảng 9h–17h20. Có cơ hội ngắm cực quang.",lfi:true},
+ vik:{n:"Vík · Reynisfjara",cc:"IS",cams:[["Live cam Sólheimajökull", "https://livefromiceland.is/webcam/solheimajokull/"]],lat:63.42,lon:-19.01,hi:6,lo:2,w:"wind",note:"Bãi biển đen có sóng lừa, đứng xa mép nước.",lfi:true},
+ jok:{n:"Jökulsárlón · hang băng",cc:"IS",lat:64.05,lon:-16.18,hi:5,lo:0,w:"snow",note:"Lạnh và gió nhất chuyến. Giày chống nước, găng tay.",lfi:true},
+ gc:{n:"Golden Circle · Geysir",cc:"IS",cams:[["Live cam Þingvellir", "https://livefromiceland.is/webcam/thingvallavatn/"]],lat:64.31,lon:-20.30,hi:5,lo:-1,w:"wind",note:"Đường có thể đóng băng buổi sáng.",lfi:true},
+ grv:{n:"Grindavík · Blue Lagoon",cc:"IS",cams:[["Live cam Svartsengi", "https://livefromiceland.is/webcam/svartsengi/"]],lat:63.88,lon:-22.45,hi:6,lo:1,w:"wind",note:"Nước hồ khoảng 38°C, gió ngoài trời rất lạnh khi lên bờ.",lfi:true},
+ snf:{n:"Snæfellsnes · Kirkjufell",cc:"IS",cams:[["Live cam Stykkishólmur", "https://livefromiceland.is/webcam/stykkisholmur/"]],lat:64.93,lon:-23.31,hi:6,lo:1,w:"wind",note:"Bán đảo hứng gió biển, mưa đổi liên tục. Mặc chống nước cả ngày.",lfi:true},
  pek:{n:"Bắc Kinh (quá cảnh)",cc:"CN",lat:40.08,lon:116.58,hi:14,lo:3,w:"sun",note:"Khô, trong lành. Ở trong khu quá cảnh T3E."}
 };
 
@@ -456,9 +456,9 @@ const windy=p=>`https://www.windy.com/${p.lat}/${p.lon}?${p.lat},${p.lon},10`;
 const ytLive=q=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=EgJAAQ%253D%253D`;
 function placeBtns(p){
  let h=`<a class="btn sky" href="${windy(p)}" target="_blank" rel="noopener">Dự báo trực tiếp</a>`;
- if(p.cam) h+=`<a class="btn peach" href="${ytLive(p.cam)}" target="_blank" rel="noopener"><span class="dot"></span>Live cam</a>`;
+ (p.cams||[]).forEach(c=>{h+=`<a class="btn peach" href="${c[1]}" target="_blank" rel="noopener"><span class="dot"></span>${esc(c[0])}</a>`});
  if(p.lfi) h+=`<a class="btn mint" href="../">Cực quang</a>`;
- if(p.lfi) h+=`<a class="btn mint" href="https://livefromiceland.is/" target="_blank" rel="noopener">Cam Iceland</a><a class="btn sky" href="https://umferdin.is/en" target="_blank" rel="noopener">Tình trạng đường</a>`;
+ if(p.lfi) h+=`<a class="btn sky" href="https://umferdin.is/en" target="_blank" rel="noopener">Tình trạng đường</a>`;
  return h;
 }
 
