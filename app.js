@@ -535,10 +535,16 @@ const canvas = $('#map');
 const ctx = canvas.getContext('2d');
 let mapGeom = null;
 function rampColor(v) {
-  const a = [62, 230, 161, 0.8], b = [140, 160, 190, 0.55], c = [235, 240, 250, 0.95];
-  const t = clamp(v / 100, 0, 1);
-  const [p, q, u] = t < 0.5 ? [a, b, t / 0.5] : [b, c, (t - 0.5) / 0.5];
-  return p.map((x, i) => x + (q[i] - x) * u);
+  // Giống bản đồ vedur.is: trắng = quang, xanh lá đậm dần = nhiều mây
+  const stops = [[0, [255, 255, 255, 0]], [25, [180, 240, 140, 0.9]], [50, [60, 210, 60, 0.95]], [75, [10, 156, 20, 1]], [100, [6, 110, 14, 1]]];
+  const t = clamp(v, 0, 100);
+  for (let k = 1; k < stops.length; k++) {
+    if (t <= stops[k][0]) {
+      const [a0, c0] = stops[k - 1], [a1, c1] = stops[k], u = (t - a0) / (a1 - a0);
+      return c0.map((x, i) => x + (c1[i] - x) * u);
+    }
+  }
+  return stops[stops.length - 1][1];
 }
 function sizeCanvas() {
   const w = canvas.parentElement.clientWidth || 340;
@@ -562,9 +568,9 @@ function drawMap() {
   const { w, h, dpr } = mapGeom;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0a1a2e'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#dfe7f0'; ctx.fillRect(0, 0, w, h);
   const land = landPath();
-  if (land) { ctx.fillStyle = '#1b2a3f'; ctx.fill(land, 'evenodd'); }
+  if (land) { ctx.fillStyle = '#ffffff'; ctx.fill(land, 'evenodd'); }
   const m = S.meteo;
   const i = m ? hourIndex(m, Date.now()) + S.hour : -1;
   if (m && i >= 0 && i < m.times.length) {
@@ -587,7 +593,7 @@ function drawMap() {
     ctx.drawImage(off, x0, y0, x1 - x0, y1 - y0);
     ctx.restore();
   }
-  if (land) { ctx.strokeStyle = 'rgba(200,215,240,.55)'; ctx.lineWidth = 1; ctx.stroke(land); }
+  if (land) { ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1; ctx.stroke(land); }
   else { ctx.fillStyle = '#8b9bbf'; ctx.font = '12px sans-serif'; ctx.fillText('Không tải được đường bờ biển', 10, 18); }
 
   // Điểm ngắm
@@ -597,13 +603,13 @@ function drawMap() {
     const p = spotPoint(s.id), f = factorsAt(S.hour === 0 ? Date.now() : t, s.lat, s.lon, cloudOf(p, i));
     const lvl = levelOf(f.score, f.dark).key, [x, y] = proj(s.lon, s.lat);
     ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = lvl === 'high' ? '#3ee6a1' : lvl === 'mid' ? '#ffc857' : '#6b7896'; ctx.fill();
-    ctx.lineWidth = 2; ctx.strokeStyle = '#070b16'; ctx.stroke();
+    ctx.fillStyle = lvl === 'high' ? '#7b3fe4' : lvl === 'mid' ? '#ff9f1a' : '#8a94a6'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.stroke();
     if (w >= 330) {
       const tw = ctx.measureText(s.short).width, ty = y + 4 + (s.dy || 0);
       const tx = clamp(s.side === 'l' ? x - 9 - tw : x + 9, 2, w - tw - 2);
-      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(7,11,22,.85)'; ctx.strokeText(s.short, tx, ty);
-      ctx.fillStyle = '#e8eefc'; ctx.fillText(s.short, tx, ty);
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.strokeText(s.short, tx, ty);
+      ctx.fillStyle = '#111'; ctx.fillText(s.short, tx, ty);
     }
   }
   if (S.me) {
@@ -615,7 +621,7 @@ function drawMap() {
   if (m && i >= 0 && m.times[i]) {
     const d = new Date(S.hour === 0 ? Date.now() : m.times[i]);
     $('#t-label').textContent = `${S.hour === 0 ? 'Bây giờ' : fmtDayIS(d)} · ${fmtIS(d)} giờ Iceland` + (tzOffsetMin ? ` (${fmtLocal(d)} ${localTag})` : '');
-    const sl = $('#t-slider'), maxH = Math.max(0, Math.min(24, m.times.length - 1 - hourIndex(m, Date.now())));
+    const sl = $('#t-slider'), maxH = Math.max(0, Math.min(48, m.times.length - 1 - hourIndex(m, Date.now())));
     if (+sl.max !== maxH) sl.max = maxH;
     $('#map-model').textContent = (m.model === 'dmi_seamless' ? 'DMI HARMONIE 2 km' : 'Open-Meteo') + ' · ' + ago(new Date(m.at));
   }
@@ -634,6 +640,106 @@ function mapTap(ev) {
   tip.style.left = clamp(x, 90, mapGeom.w - 90) + 'px'; tip.style.top = y + 'px';
   tip.hidden = false;
   clearTimeout(mapTap._t); mapTap._t = setTimeout(() => { tip.hidden = true; }, 4000);
+}
+
+
+/* ---------- bản đồ mây chính thức (Cục Khí tượng Iceland, vedur.is) ---------- */
+const VEDUR = 'https://en.vedur.is/photos/';
+const V = { layer: 'isl_skyjahula2', run: null, n: 1, playing: null };
+const runCode = (t) => { const d = new Date(t); return `${String(d.getUTCFullYear()).slice(2)}${pad2(d.getUTCMonth() + 1)}${pad2(d.getUTCDate())}_${pad2(d.getUTCHours())}00`; };
+const vUrl = (layer, run, n) => `${VEDUR}${layer}/${runCode(run)}_${n}.png`;
+const imgOk = (u) => new Promise((res) => { const i = new Image(); i.onload = () => res(true); i.onerror = () => res(false); i.src = u; });
+async function findRun() {
+  // Mô hình chạy lúc 00, 06, 12, 18 giờ (UTC); ảnh có sau khoảng 2–3 giờ. Thử từ lượt mới nhất trở về trước.
+  const last = Math.floor(Date.now() / (6 * HOUR)) * 6 * HOUR;
+  for (let k = 0; k < 5; k++) {
+    const run = last - k * 6 * HOUR;
+    if (await imgOk(vUrl('isl_skyjahula2', run, 72))) return run;
+  }
+  return null;
+}
+function vShow() {
+  const img = $('#vmap'), msg = $('#vmap-msg');
+  if (!V.run) return;
+  const t = V.run + V.n * HOUR, d = new Date(t);
+  img.onload = () => { msg.hidden = true; };
+  img.onerror = () => { msg.hidden = false; msg.textContent = 'Không tải được ảnh giờ này.'; };
+  img.src = vUrl(V.layer, V.run, V.n);
+  $('#v-slider').value = V.n;
+  const now = Date.now(), isNow = Math.abs(t - now) < 30 * MIN;
+  $('#v-label').textContent = `${isNow ? 'Bây giờ · ' : ''}${dayLabel(dayKey(t))} ${fmtDayIS(d)} · ${fmtIS(d)} giờ Iceland` + (tzOffsetMin ? ` (${fmtLocal(d)} ${localTag})` : '');
+  document.querySelectorAll('#vdays button').forEach((b) => b.classList.toggle('on', b.dataset.day === dayKey(t)));
+  // tải trước 3 giờ kế tiếp để kéo mượt
+  for (let k = 1; k <= 3; k++) if (V.n + k <= 72) { const p = new Image(); p.src = vUrl(V.layer, V.run, V.n + k); }
+}
+function vDays() {
+  const days = [];
+  for (let n = 1; n <= 72; n++) { const k = dayKey(V.run + n * HOUR); if (!days.includes(k)) days.push(k); }
+  $('#vdays').innerHTML = days.map((k) => { const d = new Date(k); return `<button data-day="${k}"><b>${dayLabel(k)}</b><span>${d.getUTCDate()}/${d.getUTCMonth() + 1}</span></button>`; }).join('');
+  document.querySelectorAll('#vdays button').forEach((b) => b.addEventListener('click', () => {
+    // nhảy tới 22h đêm đó (giờ hay ngắm aurora), nếu nằm trong khoảng dự báo
+    const target = Date.parse(b.dataset.day + 'T22:00:00Z');
+    V.n = clamp(Math.round((target - V.run) / HOUR), 1, 72); vStop(); vShow();
+  }));
+}
+function vStop() { clearInterval(V.playing); V.playing = null; $('#v-play').textContent = '▶'; }
+async function initVedurMap(force) {
+  if (V.run && !force && Date.now() - V.checked < 30 * MIN) { vShow(); return; }
+  $('#vmap-msg').hidden = false; $('#vmap-msg').textContent = 'Đang tìm bản đồ mới nhất…';
+  const run = await findRun();
+  V.checked = Date.now();
+  if (!run) { $('#vmap-msg').textContent = 'Chưa tải được bản đồ của vedur.is. Bấm “Mở trang gốc” bên dưới.'; return; }
+  const changed = run !== V.run;
+  V.run = run;
+  $('#vmap-run').textContent = `Lượt chạy ${fmtDayIS(new Date(run))} ${fmtIS(new Date(run))} · vedur.is`;
+  if (changed) { V.n = clamp(Math.round((Date.now() - run) / HOUR), 1, 72); vDays(); }
+  vShow();
+}
+function setupVedurMap() {
+  document.querySelectorAll('#vlayer-seg button').forEach((b) => b.addEventListener('click', () => {
+    V.layer = b.dataset.layer;
+    document.querySelectorAll('#vlayer-seg button').forEach((x) => x.classList.toggle('on', x === b));
+    vShow();
+  }));
+  const sl = $('#v-slider');
+  sl.addEventListener('input', () => { V.n = +sl.value; vStop(); vShow(); });
+  $('#v-prev').addEventListener('click', () => { V.n = Math.max(1, V.n - 1); vStop(); vShow(); });
+  $('#v-next').addEventListener('click', () => { V.n = Math.min(72, V.n + 1); vStop(); vShow(); });
+  $('#v-play').addEventListener('click', () => {
+    if (V.playing) { vStop(); return; }
+    $('#v-play').textContent = '❚❚';
+    V.playing = setInterval(() => { V.n = V.n >= 72 ? 1 : V.n + 1; vShow(); }, 700);
+  });
+}
+
+/* ---------- bảng dự báo mây theo giờ cho từng điểm ngắm ---------- */
+function cloudCellColor(v) {
+  // trộn với nền trắng để ô ít mây hiện màu trắng như bản đồ gốc
+  const [r, g, b, a] = rampColor(v), mix = (x) => Math.round(255 + (x - 255) * a);
+  return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+}
+function renderCloudTable() {
+  const el = $('#cf-table'), m = S.meteo;
+  if (!m) { el.innerHTML = '<tr><td class="muted small">Đang tải dữ liệu mây…</td></tr>'; return; }
+  const i0 = hourIndex(m, Date.now());
+  if (i0 < 0) { el.innerHTML = '<tr><td class="muted small">Dữ liệu mây đã cũ, bấm làm mới.</td></tr>'; return; }
+  const cols = [];
+  for (let k = 0; k < 48 && i0 + k < m.times.length; k++) cols.push(i0 + k);
+  const dark = cols.map((i) => Astro.sunAltitude(new Date(m.times[i] + 30 * MIN), REYKJAVIK.lat, REYKJAVIK.lon) < -6);
+  let h = '<thead><tr><th class="cf-name">Giờ Iceland</th>' + cols.map((i, n) => {
+    const d = new Date(m.times[i]), hr = d.getUTCHours(), newDay = n === 0 || hr === 0;
+    return `<th class="${dark[n] ? 'dk' : ''}${newDay ? ' nd' : ''}">${newDay ? `<span class="cf-day">${dayLabel(dayKey(m.times[i]))}</span>` : ''}${pad2(hr)}</th>`;
+  }).join('') + '</tr></thead><tbody>';
+  for (const s of SPOTS) {
+    const p = spotPoint(s.id);
+    h += `<tr><th class="cf-name">${s.short}</th>` + cols.map((i, n) => {
+      const v = cloudOf(p, i);
+      if (v == null) return '<td>·</td>';
+      const txt = v >= 55 ? '#fff' : '#0b1a10';
+      return `<td class="${dark[n] ? 'dk' : ''}" style="background:${cloudCellColor(v)};color:${txt}">${Math.round(v)}</td>`;
+    }).join('') + '</tr>';
+  }
+  el.innerHTML = h + '</tbody>';
 }
 
 /* ---------- điểm ngắm ---------- */
@@ -758,7 +864,7 @@ function renderAll() {
   if (ev.length) { renderHome(ev); renderSpots(ev); renderMe(ev); checkAlert(ev); }
   else { renderFactors(); renderKpChart(); renderSky(); }
   renderOutlook();
-  if (!$('#view-map').hidden) drawMap();
+  if (!$('#view-map').hidden) { drawMap(); renderCloudTable(); }
   const parts = [];
   const t = Math.max(...Object.values(S.fetchedAt).filter(Boolean), 0);
   if (t) parts.push('Cập nhật ' + fmtLocal(new Date(t)) + (tzOffsetMin ? ` ${localTag}` : ''));
@@ -863,7 +969,8 @@ function setupCams() {
 function showTab(name) {
   document.querySelectorAll('.view').forEach((v) => { v.hidden = v.dataset.view !== name; });
   document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
-  if (name === 'map') { sizeCanvas(); drawMap(); }
+  if (name === 'map') { sizeCanvas(); drawMap(); renderCloudTable(); initVedurMap(false); }
+  if (name !== 'map') vStop();
   if (name === 'home') renderKpChart();
   if (name === 'cams' && !$('#cam-frame iframe')) playCam(CAMS.some((c) => c.id === lsGet('cam')) ? lsGet('cam') : 'lava');
   if (name !== 'cams') { $('#cam-frame').innerHTML = ''; clearInterval(playCam._t); } // dừng video khi rời tab để đỡ tốn dữ liệu
@@ -874,11 +981,7 @@ function setup() {
   document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('#btn-refresh').addEventListener('click', () => refresh(true));
   $('#btn-locate').addEventListener('click', locate);
-  document.querySelectorAll('#layer-seg button').forEach((b) => b.addEventListener('click', () => {
-    S.layer = b.dataset.layer;
-    document.querySelectorAll('#layer-seg button').forEach((x) => x.classList.toggle('on', x === b));
-    drawMap();
-  }));
+
   const sl = $('#t-slider');
   sl.addEventListener('input', () => { S.hour = +sl.value; drawMap(); });
   $('#t-prev').addEventListener('click', () => { sl.value = Math.max(0, S.hour - 1); S.hour = +sl.value; drawMap(); });
@@ -890,6 +993,7 @@ function setup() {
   });
   setupSettings();
   setupCams();
+  setupVedurMap();
   // Gợi ý cài app trên iPhone (Safari, chưa cài)
   const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !standalone && !lsGet('hideInstall')) $('#install-hint').hidden = false;

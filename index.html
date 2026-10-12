@@ -96,19 +96,54 @@
 
   <!-- BẢN ĐỒ MÂY -->
   <section class="view" id="view-map" data-view="map" hidden>
-    <div class="card map-card">
+    <div class="card map-card" id="vmap-card">
       <div class="card-head">
         <h3>Bản đồ mây Iceland</h3>
+        <span class="muted small" id="vmap-run">Cục Khí tượng Iceland</span>
+      </div>
+      <div class="seg seg-wrap" role="tablist" id="vlayer-seg">
+        <button data-layer="isl_skyjahula2" class="on">Mây thấp + giữa</button>
+        <button data-layer="harmonie_island_lcc">Mây thấp</button>
+        <button data-layer="harmonie_island_mcc">Mây giữa</button>
+        <button data-layer="harmonie_island_hcc">Mây cao</button>
+        <button data-layer="harmonie_island_tcc_lcc_mcc_hcc">Tổng hợp</button>
+      </div>
+      <div class="vmap-wrap" id="vmap-wrap">
+        <img id="vmap" alt="Bản đồ mây dự báo của Cục Khí tượng Iceland">
+        <div class="vmap-msg" id="vmap-msg">Đang tải bản đồ…</div>
+      </div>
+      <div class="vdays" id="vdays"></div>
+      <div class="time-row">
+        <button class="icon-btn small" id="v-prev" aria-label="Giờ trước">‹</button>
+        <button class="icon-btn small" id="v-play" aria-label="Chạy liên tục">▶</button>
+        <input type="range" id="v-slider" min="1" max="72" value="1" aria-label="Chọn giờ">
+        <button class="icon-btn small" id="v-next" aria-label="Giờ sau">›</button>
+      </div>
+      <p class="time-label" id="v-label">—</p>
+      <div class="vlegend" id="vlegend">
+        <span><i style="background:#fff"></i>Quang</span><span><i style="background:#b4f08c"></i>Ít mây</span>
+        <span><i style="background:#3cd23c"></i>Nhiều mây</span><span><i style="background:#0a9c14"></i>Kín mây</span>
+      </div>
+      <p class="muted small">Giống trang gốc: <b>vùng xanh là có mây, vùng trắng là trời quang</b>. Dự báo từng giờ trong 72 giờ (mô hình HARMONIE), cập nhật 4 lần mỗi ngày. Giờ trên ảnh là giờ Iceland. Kéo thanh trượt hoặc bấm ▶ để xem mây di chuyển.</p>
+      <a class="btn-out" href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">Mở trang gốc vedur.is ↗</a>
+    </div>
+
+    <div class="card" id="cf-card">
+      <div class="card-head">
+        <h3>Dự báo mây theo giờ</h3>
+        <span class="muted small">48 giờ tới · % mây thấp + giữa</span>
+      </div>
+      <div class="cf-scroll"><table class="cf" id="cf-table"></table></div>
+      <p class="muted small">Ô càng xanh đậm càng nhiều mây; ô trắng là quang, ghi % mây. Giờ có nền tím và vạch tím dưới ô là giờ trời tối ở Iceland; nên tìm ô trắng ở các giờ này. Vuốt ngang để xem các giờ sau.</p>
+    </div>
+
+    <div class="card map-card">
+      <div class="card-head">
+        <h3>Bản đồ điểm ngắm</h3>
         <span class="muted small" id="map-model">—</span>
       </div>
-      <div class="seg" role="tablist" id="layer-seg">
-        <button data-layer="eff" class="on">Ảnh hưởng</button>
-        <button data-layer="low">Mây thấp</button>
-        <button data-layer="mid">Mây giữa</button>
-        <button data-layer="high">Mây cao</button>
-      </div>
       <div class="map-wrap">
-        <canvas id="map" aria-label="Bản đồ mây Iceland"></canvas>
+        <canvas id="map" aria-label="Bản đồ mây và điểm ngắm"></canvas>
         <div class="map-tip" id="map-tip" hidden></div>
       </div>
       <div class="time-row">
@@ -117,12 +152,7 @@
         <button class="icon-btn small" id="t-next" aria-label="Giờ sau">›</button>
       </div>
       <p class="time-label" id="t-label">—</p>
-      <div class="legend">
-        <span class="lg-bar"></span>
-        <div class="lg-ticks"><span>Quang</span><span>50%</span><span>Kín mây</span></div>
-      </div>
-      <p class="muted small">Chấm tròn là điểm ngắm, màu theo khả năng thấy aurora (xanh = cao, vàng = trung bình, xám = thấp). Chạm vào bản đồ để xem % mây tại chỗ đó. Dữ liệu dự báo theo giờ, cập nhật mỗi giờ.</p>
-      <a class="btn-out" href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">Đối chiếu bản đồ mây chính thức (Cục Khí tượng Iceland) ↗</a>
+      <p class="muted small">Chấm tròn là điểm ngắm, màu theo khả năng thấy aurora (xanh = cao, vàng = trung bình, xám = thấp). Chạm vào bản đồ để xem % mây tại chỗ đó.</p>
     </div>
   </section>
 
