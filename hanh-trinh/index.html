@@ -320,7 +320,7 @@ button.btn{font-family:inherit}
 
   <!-- BỎ TÚI -->
   <section class="tab stack" id="t-pocket" hidden>
-    <div class="sec-title"><h2>Bỏ túi</h2></div>
+    <div class="sec-title"><h2>Bỏ túi</h2><span class="muted" style="font-size:11px" id="build-ver"></span></div>
     <div class="card lock" id="lockcard">
       <div class="eyebrow">Thông tin riêng</div>
       <div id="lock-off"><p style="margin:4px 0 0;font-size:13.5px">Mã đặt chỗ, số vé, mã tour và số liên hệ đang được khóa. Nhập mật khẩu để xem trên máy này.</p>
@@ -732,6 +732,16 @@ if("serviceWorker" in navigator){
  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadSW&&!reloaded){reloaded=true;location.reload()}});
 }
 
+/* tự kiểm tra bản mới: nếu máy đang giữ bản cũ thì xóa bộ nhớ đệm và tải lại */
+var BUILD="2026-10-12T17:04:51";
+(function(){var el=$("#build-ver");if(el)el.textContent="Bản cập nhật: "+BUILD.replace("T"," ").slice(0,16);
+ fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){
+  var k="qi-reload-"+v.build;var done=false;try{done=sessionStorage.getItem(k)}catch(e){}
+  if(v.build!==BUILD&&!done){try{sessionStorage.setItem(k,"1")}catch(e){}
+   var clear=window.caches?caches.keys().then(function(ks){return Promise.all(ks.filter(function(n){return n.indexOf("hanh-trinh")===0}).map(function(n){return caches.delete(n)}))}):Promise.resolve();
+   clear.then(function(){return navigator.serviceWorker&&navigator.serviceWorker.getRegistration?navigator.serviceWorker.getRegistration().then(function(r){if(r)return r.update()}):null}).catch(function(){}).then(function(){location.reload()})}
+ }).catch(function(){})})();
+
 /* ===== Camera xem ngay trong app (giống Aurora) ===== */
 var WIN=function(id,label){return [label,"https://www.windy.com/webcams/"+id,"https://webcams.windy.com/webcams/public/embed/player/"+id+"/day"]};
 var IPC=function(alias,label,page){return [label,page,"https://g0.ipcamlive.com/player/player.php?alias="+alias+"&autoplay=1&mute=1"]};
@@ -822,7 +832,7 @@ function renderMapDay(d){
   <div><b>${stops}</b><span>điểm đến</span></div>
   <div><b>${km[1]>=1?fmtKm(km[1]):"–"}</b><span>km đường bộ*</span></div>
   <div><b>${km[0]>=1?fmtKm(km[0]):"–"}</b><span>km bay</span></div>
-  <div><b>${times.length?times[0]:"cả ngày"}</b><span>${times.length?"bắt đầu":"tự do"}</span></div>
+  <div><b>${times.length?times[0]:"cả ngày"}</b><span>${times.length?"bắt đầu":"theo lịch tour"}</span></div>
  </div>
  <div class="mi-legs">${Object.keys(legs).map(function(k){return `<span class="chip" style="background:var(--bg)">${LEG[k][1]} ${LEG[k][0]}</span>`}).join("")}</div>`;
  $("#map-list").innerHTML=`<ol class="mi-route">${m.pts.map(function(p,i){return `<li>${p[3]?`<div class="mi-leg">${LEG[p[3]][1]} ${LEG[p[3]][0]}${i>0?` · ~${Math.round(hav(m.pts[i-1][1],m.pts[i-1][2],p[1],p[2])*(p[3]==="f"?1:1.3))} km`:""}</div>`:""}<div class="mi-stop"><span class="pin" style="background:${CC[p[4]][1]}">${i+1}</span><button type="button" class="mi-name" data-i="${i}">${esc(p[0])}</button></div></li>`}).join("")}</ol>
