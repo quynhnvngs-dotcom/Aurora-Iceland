@@ -13,6 +13,8 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <style>
@@ -183,7 +185,7 @@ ul.plain li{margin-block:3px}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:2px solid var(--line);
   padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center}
-nav.tabs .in{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;width:100%;max-width:560px}
+nav.tabs .in{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;width:100%;max-width:560px}
 nav.tabs button{background:none;border:0;border-radius:14px;padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:700;color:var(--muted)}
 nav.tabs button svg{width:24px;height:24px}
 nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--sky-soft)}
@@ -200,6 +202,40 @@ img{max-width:100%}
 .live:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mint)}
 .fc{font-size:13px;margin-top:4px}
 .gps{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.mapdays{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.mapdays::-webkit-scrollbar{display:none}
+.mapdays button{flex:none;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:4px 0;width:48px;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.mapdays button b{font-family:var(--f-display);font-size:18px}
+.mapdays button span{font-size:10px;font-weight:700;color:var(--muted)}
+.mapdays button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.mapdays button[aria-pressed="true"] span{color:#fff}
+.mi-head{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center}
+.mi-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.mi-stats div{background:var(--sun-soft);border-radius:14px;padding:8px 2px;text-align:center;min-width:0}
+.mi-stats b{display:block;font-family:var(--f-display);font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums}
+.mi-stats span{font-size:10.5px;color:var(--muted);font-weight:600}
+.mi-legs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mi-legs .chip{color:var(--ink)}
+.mapbox{border-radius:22px;overflow:hidden;border:2px solid var(--line);box-shadow:var(--shadow)}
+#map{height:360px;background:var(--sky-soft)}
+.mi-route{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.mi-leg{font-size:12px;color:var(--muted);font-weight:600;padding:3px 0 3px 22px;border-left:2px dashed var(--line);margin-left:13px}
+.mi-stop{display:flex;align-items:center;gap:10px}
+.mi-name{background:none;border:0;padding:4px 0;font:inherit;font-weight:700;color:var(--ink);text-align:left;cursor:pointer}
+.pin{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 4px;border-radius:999px;color:#fff;font-family:var(--f-display);font-weight:800;font-size:14px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);box-sizing:border-box}
+.pin.big{min-width:30px;height:30px;white-space:nowrap}
+.leaflet-popup-content{font-family:var(--f-body)}
+.camsheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.cs-back{position:absolute;inset:0;background:rgba(18,26,42,.55)}
+.cs-card{position:relative;width:100%;max-width:560px;background:var(--surface);border-radius:24px 24px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+.cs-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.cs-head h3{font-size:19px}
+.cs-x{border:0;background:var(--bg);border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;flex:none;color:var(--ink)}
+.cs-frame{position:relative;width:100%;aspect-ratio:16/11;max-width:100%;border-radius:16px;overflow:hidden;background:#0b1220}
+.cs-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.cs-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:12px}
+.cs-foot .btn{flex:none}
+button.btn{font-family:inherit}
 </style>
 </head>
 <body>
@@ -273,6 +309,15 @@ img{max-width:100%}
     <div class="places" id="places"></div>
   </section>
 
+  <!-- BẢN ĐỒ -->
+  <section class="tab stack" id="t-map" hidden>
+    <div class="sec-title"><h2>Bản đồ từng ngày</h2></div>
+    <div class="mapdays" id="map-days" role="group" aria-label="Chọn ngày"></div>
+    <div class="card" id="map-info"></div>
+    <div class="mapbox"><div id="map" role="region" aria-label="Bản đồ lộ trình"></div></div>
+    <div class="card" id="map-list"></div>
+  </section>
+
   <!-- BỎ TÚI -->
   <section class="tab stack" id="t-pocket" hidden>
     <div class="sec-title"><h2>Bỏ túi</h2></div>
@@ -331,8 +376,9 @@ img{max-width:100%}
   <div class="in" role="tablist">
     <button role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/></svg>Hôm nay</button>
     <button role="tab" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Lịch trình</button>
-    <button role="tab" data-tab="fly" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14 3 11l1-2 7 1 5-6c1-1 3-1 3 0s-1 2-2 3l-5 5 1 7-2 1-3-7"/></svg>Chuyến bay</button>
+    <button role="tab" data-tab="fly" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14 3 11l1-2 7 1 5-6c1-1 3-1 3 0s-1 2-2 3l-5 5 1 7-2 1-3-7"/></svg>Vé bay</button>
     <button role="tab" data-tab="wx" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3"/><path d="M8 2v1M2 9h1M3.8 4.8l.7.7M17 20H8a4 4 0 1 1 1-7.9A5 5 0 0 1 18.6 13 3.5 3.5 0 0 1 17 20z"/></svg>Thời tiết</button>
+    <button role="tab" data-tab="map" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Bản đồ</button>
     <button role="tab" data-tab="pocket" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Bỏ túi</button>
   </div>
 </nav>
@@ -533,7 +579,7 @@ function renderDays(){
   <div class="card"><h3>${esc(d.t)}</h3>${d.who?`<div class="who muted">${esc(d.who)}</div>`:""}
   <ul class="agenda">${d.ag.map(a=>`<li><time>${esc(a[0])}</time><span>${esc(a[1])}</span></li>`).join("")}</ul>
   <div class="stops">${d.stops.map(x=>`<span class="stop">${esc(x)}</span>`).join("")}</div>
-  ${d.tip?`<div class="tip ${d.warn?"w":""}">${esc(d.tip)}</div>`:""}</div></div>`}).join("");
+  ${d.tip?`<div class="tip ${d.warn?"w":""}">${esc(d.tip)}</div>`:""}<div class="btns"><button type="button" class="btn sky day-map" data-d="${d.d}">Bản đồ ngày này</button></div></div></div>`}).join("");
 }
 
 function renderFlights(){
@@ -685,6 +731,133 @@ if("serviceWorker" in navigator){
  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{reg.update();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{})})}).catch(()=>{});
  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadSW&&!reloaded){reloaded=true;location.reload()}});
 }
+
+/* ===== Camera xem ngay trong app (giống Aurora) ===== */
+var WIN=function(id,label){return [label,"https://www.windy.com/webcams/"+id,"https://webcams.windy.com/webcams/public/embed/player/"+id+"/day"]};
+var IPC=function(alias,label,page){return [label,page,"https://g0.ipcamlive.com/player/player.php?alias="+alias+"&autoplay=1&mute=1"]};
+var LFI=function(slug,label){return [label,"https://livefromiceland.is/webcam/"+slug+"/",null]};
+var CAMSET={
+ zrh:[WIN(1697040352,"Zurich · Lindenhof")],
+ ber:[WIN(1604878242,"Tàu Bernina Express · Brusio")],
+ tir:[WIN(1595671910,"Tirano · Vương cung thánh đường")],
+ int:[WIN(1371732007,"Interlaken · hồ Thun")],
+ mur:[WIN(1451382017,"Mürren · Allmendhubel"),WIN(1292514934,"Thung lũng Lauterbrunnen"),WIN(1722960001,"Grindelwald")],
+ luz:[WIN(1119270291,"Phố cổ Lucerne")],
+ muc:[["Marienplatz","https://www.muenchen.de/en/sights/webcam-live-munich-marienplatz-olympiapark-and-more",null]],
+ neu:[WIN(1528156628,"Hohenschwangau · nhìn sang Neuschwanstein")],
+ rkv:[WIN(1464122372,"Reykjavík"),IPC("midbakki","Cảng Miðbakki, Reykjavík","https://g0.ipcamlive.com/player/player.php?alias=midbakki")],
+ vik:[WIN(1742579657,"Bãi biển đen Víkurfjara"),IPC("northernlights","Hvolsvöllur · gần Seljalandsfoss","https://lavacentre.is/live/northern-lights-web-cam/"),LFI("solheimajokull","Sông băng Sólheimajökull")],
+ gc:[LFI("thingvallavatn","Hồ Þingvallavatn")],
+ grv:[LFI("svartsengi","Svartsengi · Blue Lagoon")],
+ snf:[WIN(1483905499,"Grundarfjörður · núi Kirkjufell"),LFI("stykkisholmur","Stykkishólmur")]
+};
+for(var ck in P){P[ck].cams=CAMSET[ck]||[]}
+placeBtns=function(p){
+ var h=`<a class="btn sky" href="${windy(p)}" target="_blank" rel="noopener">Dự báo trực tiếp</a>`;
+ (p.cams||[]).forEach(function(c,i){
+  if(c[2]) h+=`<button type="button" class="btn peach cam-play" data-src="${c[2]}" data-page="${c[1]}" data-name="${esc(c[0])}"><span class="dot"></span>${esc(c[0])}</button>`;
+  else h+=`<a class="btn peach" href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])} ↗</a>`;
+ });
+ if(p.lfi) h+=`<a class="btn mint" href="../">Cực quang</a><a class="btn sky" href="https://umferdin.is/en" target="_blank" rel="noopener">Tình trạng đường</a>`;
+ return h;
+};
+var camSheet=document.createElement("div");camSheet.className="camsheet";camSheet.hidden=true;
+camSheet.innerHTML=`<div class="cs-back" data-close></div><div class="cs-card" role="dialog" aria-modal="true" aria-labelledby="cs-name">
+ <div class="cs-head"><div style="min-width:0"><span class="live">trực tiếp</span><h3 id="cs-name"></h3></div><button type="button" class="cs-x" data-close aria-label="Đóng">✕</button></div>
+ <div class="cs-frame" id="cs-frame"></div>
+ <div class="cs-foot"><span class="muted">Camera Windy phát ảnh mới nhất, kéo thanh thời gian để xem lại 24 giờ qua. Trời tối thì hình sẽ tối.</span><a class="btn sky" id="cs-open" target="_blank" rel="noopener">Mở riêng ↗</a></div>
+</div>`;
+document.body.appendChild(camSheet);
+function openCam(src,page,name){
+ $("#cs-name").textContent=name;$("#cs-open").href=page;
+ var f=$("#cs-frame");f.innerHTML="";var ifr=document.createElement("iframe");ifr.src=src;ifr.title="Camera "+name;
+ ifr.allow="autoplay; fullscreen; picture-in-picture";ifr.referrerPolicy="strict-origin-when-cross-origin";ifr.loading="eager";f.appendChild(ifr);
+ camSheet.hidden=false;document.body.style.overflow="hidden";
+}
+function closeCam(){camSheet.hidden=true;$("#cs-frame").innerHTML="";document.body.style.overflow=""}
+document.addEventListener("click",function(e){
+ var b=e.target.closest(".cam-play");if(b){openCam(b.dataset.src,b.dataset.page,b.dataset.name);return}
+ if(e.target.closest("[data-close]"))closeCam();
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!camSheet.hidden)closeCam()});
+
+/* ===== Bản đồ từng ngày ===== */
+/* leg: cách đi tới điểm này từ điểm trước: f=bay t=tàu d=ô tô w=đi bộ b=thuyền */
+var MAPS={
+"2026-10-19":{mode:"Bay",pts:[["Sân bay Tân Sơn Nhất T2",10.8188,106.6519,"","VN"],["Sân bay Hamad, Doha",25.2731,51.6081,"f","QA"]]},
+"2026-10-20":{mode:"Bay · đi bộ",pts:[["Sân bay Hamad, Doha",25.2731,51.6081,"","QA"],["Sân bay Zurich",47.4582,8.5555,"f","CH"],["Phố cổ Zurich",47.3700,8.5440,"d","CH"],["Bahnhofstrasse",47.3726,8.5389,"w","CH"],["Hồ Zurich",47.3663,8.5410,"w","CH"],["Bờ sông Limmat",47.3730,8.5426,"w","CH"]]},
+"2026-10-21":{mode:"Tàu Bernina Express",pts:[["Ga Chur",46.8530,9.5290,"","CH"],["Cầu Landwasser",46.6806,9.6758,"t","CH"],["Vòng xoắn Bergün",46.6290,9.7470,"t","CH"],["Hồ Trắng · đèo Bernina",46.4108,10.0225,"t","CH"],["Alp Grüm",46.3735,10.0346,"t","CH"],["Cầu xoắn Brusio",46.2578,10.1220,"t","CH"],["Tirano",46.2163,10.1686,"t","IT"]]},
+"2026-10-22":{mode:"Ô tô · du thuyền",pts:[["Geneva",46.2073,6.1557,"","CH"],["Phố cổ Bern",46.9479,7.4475,"d","CH"],["Interlaken",46.6863,7.8632,"d","CH"],["Hồ Brienz",46.7550,8.0380,"b","CH"],["Thun",46.7580,7.6280,"d","CH"]]},
+"2026-10-23":{mode:"Ô tô · cáp treo",pts:[["Lauterbrunnen",46.5935,7.9091,"","CH"],["Mürren 1.638m",46.5590,7.8920,"t","CH"],["Grindelwald",46.6242,8.0414,"d","CH"]]},
+"2026-10-24":{mode:"Ô tô · tàu",pts:[["Thác Rhine",47.6779,8.6150,"","CH"],["Cầu gỗ Chapel, Lucerne",47.0516,8.3075,"d","CH"],["Marienplatz, Munich",48.1374,11.5755,"t","DE"],["Hofbräuhaus",48.1376,11.5797,"w","DE"]]},
+"2026-10-25":{mode:"Ô tô",pts:[["Munich",48.1374,11.5755,"","DE"],["Làng Mittenwald",47.4430,11.2620,"d","DE"],["Hồ Lautersee",47.4370,11.2380,"w","DE"],["Lâu đài Neuschwanstein",47.5576,10.7498,"d","DE"],["Cầu Marienbrücke",47.5555,10.7505,"w","DE"],["Munich",48.1374,11.5755,"d","DE"]]},
+"2026-10-26":{mode:"Bay",pts:[["Munich",48.1374,11.5755,"","DE"],["Sân bay Munich",48.3538,11.7861,"t","DE"],["Sân bay Copenhagen",55.6180,12.6508,"f","DK"],["Sân bay Keflavík",63.9850,-22.6056,"f","IS"],["Reykjavík",64.1466,-21.9426,"d","IS"]]},
+"2026-10-27":{mode:"Ô tô, khoảng 750 km",pts:[["Reykjavík",64.1466,-21.9426,"","IS"],["Jökulsárlón · hang băng",64.0784,-16.2306,"d","IS"],["Diamond Beach",64.0440,-16.1775,"d","IS"],["Nhà thờ Hofskirkja",63.9172,-16.6930,"d","IS"],["Núi Lómagnúpur",63.9700,-17.4700,"d","IS"],["Nhà thờ Vík",63.4196,-19.0060,"d","IS"],["Bãi Víkurfjara",63.4170,-19.0120,"w","IS"],["Reynisfjara",63.4040,-19.0450,"d","IS"],["Hải đăng Dyrhólaey",63.4020,-19.1300,"d","IS"],["Thác Skógafoss",63.5321,-19.5114,"d","IS"],["Thác Seljalandsfoss",63.6156,-19.9886,"d","IS"],["Thác Gljúfrabúi",63.6210,-19.9860,"w","IS"],["Reykjavík",64.1466,-21.9426,"d","IS"]]},
+"2026-10-28":{mode:"Ô tô",pts:[["Reykjavík",64.1466,-21.9426,"","IS"],["Blue Lagoon",63.8804,-22.4495,"d","IS"],["Grindavík",63.8424,-22.4338,"d","IS"],["Reykjavík",64.1466,-21.9426,"d","IS"]]},
+"2026-10-29":{mode:"Ô tô",pts:[["Reykjavík",64.1466,-21.9426,"","IS"],["Þingvellir",64.2559,-21.1299,"d","IS"],["Thác Brúarárfoss",64.2645,-20.5159,"d","IS"],["Geysir",64.3104,-20.3024,"d","IS"],["Thác Gullfoss",64.3271,-20.1199,"d","IS"],["Miệng núi lửa Kerið",64.0413,-20.8851,"d","IS"],["Reykjavík",64.1466,-21.9426,"d","IS"]],note:"Trại ngựa Brú nằm trên đường giữa các điểm, bản đồ chưa ghim vì chưa có địa chỉ chính xác."},
+"2026-10-30":{mode:"Xe tour",pts:[["Reykjavík",64.1466,-21.9426,"","IS"],["Búðir",64.8210,-23.3840,"d","IS"],["Arnarstapi",64.7660,-23.6230,"d","IS"],["Djúpalónssandur",64.7530,-23.8970,"d","IS"],["Núi Kirkjufell",64.9420,-23.3070,"d","IS"],["Reykjavík",64.1466,-21.9426,"d","IS"]],note:"Tour chưa gửi lộ trình chi tiết. Đây là các điểm tour Snæfellsnes thường ghé."},
+"2026-10-31":{mode:"Bay",pts:[["Reykjavík",64.1466,-21.9426,"","IS"],["Sân bay Keflavík",63.9850,-22.6056,"d","IS"],["Sân bay Copenhagen",55.6180,12.6508,"f","DK"]]},
+"2026-11-01":{mode:"Bay",pts:[["Sân bay Copenhagen",55.6180,12.6508,"","DK"],["Sân bay Bắc Kinh T3",40.0799,116.6031,"f","CN"],["Sân bay Tân Sơn Nhất",10.8188,106.6519,"f","VN"]]},
+"2026-11-02":{mode:"Về nhà",pts:[["Sân bay Tân Sơn Nhất T2",10.8188,106.6519,"","VN"]]}
+};
+var LEG={f:["Bay","✈"],t:["Tàu","🚆"],d:["Ô tô","🚐"],w:["Đi bộ","🚶"],b:["Thuyền","⛴"]};
+var mapObj=null,mapLayer=null,mapDay=null;
+function kmOf(pts){var air=0,ground=0;for(var i=1;i<pts.length;i++){var k=hav(pts[i-1][1],pts[i-1][2],pts[i][1],pts[i][2]);if(pts[i][3]==="f")air+=k;else ground+=k*1.3}return [air,ground]}
+function fmtKm(k){return k>=1000?(k/1000).toFixed(1).replace(".",",")+"k":String(Math.round(k))}
+function gmapLinks(pts){
+ var uniq=pts.filter(function(p,i){return i===0||p[0]!==pts[i-1][0]});
+ var fly=uniq.some(function(p){return p[3]==="f"});
+ if(uniq.length<2||fly){return uniq.map(function(p){return `<a class="btn sky" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p[1]},${p[2]}">${esc(p[0])}</a>`}).join("")}
+ var out=[],chunk=9;for(var i=0;i<uniq.length-1;i+=chunk){var part=uniq.slice(i,i+chunk+1);out.push(part)}
+ return out.map(function(part,n){return `<a class="btn mint" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/${part.map(function(p){return p[1]+","+p[2]}).join("/")}">Chỉ đường Google Maps${out.length>1?` · chặng ${n+1}`:""}</a>`}).join("");
+}
+function renderMapDay(d){
+ mapDay=d;var m=MAPS[d],day=DAYS.find(function(x){return x.d===d});if(!m||!day)return;
+ document.querySelectorAll("#map-days button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.d===d)});
+ var km=kmOf(m.pts),stops=m.pts.filter(function(p,i){return i>0&&p[0]!==m.pts[0][0]}).length||1;
+ var times=day.ag.map(function(a){return a[0]}).filter(function(t){return /^\d\d:\d\d$/.test(t)});
+ var legs={};m.pts.forEach(function(p){if(p[3])legs[p[3]]=1});
+ $("#map-info").innerHTML=`<div class="mi-head"><div class="date" style="background:${CC[day.cc][1]}"><b>${d.slice(8)}</b><span>th${+d.slice(5,7)}</span></div><div style="min-width:0"><div class="eyebrow">${esc(m.mode)}</div><h3 style="font-size:20px">${esc(day.t)}</h3></div></div>
+ <div class="mi-stats">
+  <div><b>${stops}</b><span>điểm đến</span></div>
+  <div><b>${km[1]>=1?fmtKm(km[1]):"–"}</b><span>km đường bộ*</span></div>
+  <div><b>${km[0]>=1?fmtKm(km[0]):"–"}</b><span>km bay</span></div>
+  <div><b>${times.length?times[0]:"cả ngày"}</b><span>${times.length?"bắt đầu":"tự do"}</span></div>
+ </div>
+ <div class="mi-legs">${Object.keys(legs).map(function(k){return `<span class="chip" style="background:var(--bg)">${LEG[k][1]} ${LEG[k][0]}</span>`}).join("")}</div>`;
+ $("#map-list").innerHTML=`<ol class="mi-route">${m.pts.map(function(p,i){return `<li>${p[3]?`<div class="mi-leg">${LEG[p[3]][1]} ${LEG[p[3]][0]}${i>0?` · ~${Math.round(hav(m.pts[i-1][1],m.pts[i-1][2],p[1],p[2])*(p[3]==="f"?1:1.3))} km`:""}</div>`:""}<div class="mi-stop"><span class="pin" style="background:${CC[p[4]][1]}">${i+1}</span><button type="button" class="mi-name" data-i="${i}">${esc(p[0])}</button></div></li>`}).join("")}</ol>
+ ${m.note?`<div class="tip">${esc(m.note)}</div>`:""}
+ <div class="btns">${gmapLinks(m.pts)}</div>
+ <div class="muted" style="font-size:11px;margin-top:8px">* Quãng đường ước tính theo đường chim bay cộng thêm khoảng 30% cho đường đi thực tế.</div>`;
+ drawMap(m);
+}
+function drawMap(m){
+ if(typeof L==="undefined"){$("#map").innerHTML='<div class="muted" style="padding:16px">Chưa tải được bản đồ, kiểm tra kết nối mạng rồi mở lại tab này.</div>';return}
+ if(!mapObj){mapObj=L.map("map",{zoomControl:true,attributionControl:true,scrollWheelZoom:false});
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(mapObj)}
+ if(mapLayer)mapLayer.remove();mapLayer=L.layerGroup().addTo(mapObj);
+ var ll=m.pts.map(function(p){return [p[1],p[2]]});
+ for(var i=1;i<m.pts.length;i++){var p=m.pts[i];
+  L.polyline([ll[i-1],ll[i]],{color:p[3]==="f"?"#6C7BD9":p[3]==="t"?"#E5383B":p[3]==="w"?"#2FBF94":"#E0538A",weight:p[3]==="w"?3:4,opacity:.9,dashArray:p[3]==="f"?"8 8":p[3]==="w"?"2 6":null}).addTo(mapLayer)}
+ var seen={};m.pts.forEach(function(p,i){var key=p[1]+","+p[2];var nums=seen[key]?seen[key].n+"·"+(i+1):String(i+1);
+  if(seen[key])seen[key].m.remove();
+  var mk=L.marker([p[1],p[2]],{icon:L.divIcon({className:"",html:`<span class="pin big" style="background:${CC[p[4]][1]}">${nums}</span>`,iconSize:[30,30],iconAnchor:[15,15]})}).bindPopup(`<b>${esc(p[0])}</b><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p[1]},${p[2]}">Mở Google Maps</a>`).addTo(mapLayer);
+  seen[key]={n:nums,m:mk};p._m=mk});
+ mapObj.invalidateSize();mapObj.fitBounds(L.latLngBounds(ll).pad(0.15),{maxZoom:14});
+}
+function initMapTab(){
+ if(!$("#map-days").children.length){
+  $("#map-days").innerHTML=DAYS.map(function(d){return `<button type="button" data-d="${d.d}" style="--c:${CC[d.cc][1]}"><b>${d.d.slice(8)}</b><span>th${+d.d.slice(5,7)}</span></button>`}).join("");
+ }
+ var t=now(),s=seg(t),ld=localDate(t,s.tz);var d=mapDay||(MAPS[ld]?ld:"2026-10-19");
+ setTimeout(function(){renderMapDay(d);var b=document.querySelector(`#map-days button[data-d="${d}"]`);if(b)b.scrollIntoView({inline:"center",block:"nearest"})},60);
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("#map-days button");if(b){renderMapDay(b.dataset.d);return}
+ var n=e.target.closest(".mi-name");if(n&&mapObj){var p=MAPS[mapDay].pts[+n.dataset.i];mapObj.setView([p[1],p[2]],12);if(p._m)p._m.openPopup();$("#map").scrollIntoView({behavior:"smooth",block:"center"});return}
+ var g=e.target.closest(".day-map");if(g){mapDay=g.dataset.d;var tb=document.querySelector('nav.tabs button[data-tab="map"]');if(tb)tb.click()}
+});
+document.querySelector('nav.tabs button[data-tab="map"]').addEventListener("click",initMapTab);
 
 buildPreview();renderRoute();renderFlights();renderPlaces();renderCheck();renderAll();
 const lastTab=store.get("qi-tab","home");if(lastTab!=="home"){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`);if(b)b.click()}
