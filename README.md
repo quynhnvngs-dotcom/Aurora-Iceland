@@ -18,3 +18,15 @@ Web app (cài lên iPhone như một app) theo dõi khả năng ngắm cực qua
 
 ## Lưu ý
 Điểm "khả năng" (0–100) là ước tính, kết hợp hoạt động địa từ, mây, bóng tối và ánh trăng. Hãy đối chiếu thêm với [vedur.is](https://en.vedur.is/weather/forecasts/aurora/).
+
+---
+
+# Hành trình - Qi
+
+App lịch trình Thụy Sĩ – Đức – Iceland (19/10 – 02/11/2026): Qi đang ở đâu, lịch từng ngày, vé máy bay, thời tiết trực tiếp, live cam.
+
+**Mở app:** https://quynhnvngs-dotcom.github.io/Aurora-Iceland/hanh-trinh/
+
+Cài lên iPhone: mở bằng Safari → Chia sẻ → Thêm vào MH chính.
+
+Mã đặt chỗ, số vé, mã tour và số liên hệ được mã hóa (PBKDF2 + AES-GCM) trong `hanh-trinh/secret.json`, chỉ mở được bằng mật khẩu.

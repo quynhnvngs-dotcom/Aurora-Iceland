@@ -1,0 +1,17 @@
+{
+  "name": "Hành trình - Qi",
+  "short_name": "Hành trình - Qi",
+  "description": "Hành trình Thụy Sĩ, Đức, Iceland của Qi, 19/10 – 02/11/2026",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF7FF",
+  "theme_color": "#EEF7FF",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

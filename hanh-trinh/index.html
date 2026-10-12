@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hành trình - Qi</title>
+<meta name="description" content="Hành trình Thụy Sĩ, Đức, Iceland của Qi, 19/10 – 02/11/2026">
+<meta name="theme-color" content="#EEF7FF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hành trình - Qi">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column phone app, sticky header + bottom tab bar; candy-sky palette with country colour chips */
+:root{
+  --bg:#EEF7FF; --bg2:#FFF6EC; --surface:#FFFFFF; --ink:#22304A; --muted:#66748E; --line:#DCE9F6;
+  --sky:#3FA6EE; --sky-soft:#DDF0FF; --peach:#FF8F7A; --peach-soft:#FFE7E1; --mint:#2FBF94; --mint-soft:#DDF7EE;
+  --sun:#FFC93C; --sun-soft:#FFF3CC; --berry:#E0538A; --berry-soft:#FDE3EE; --warn:#C9561E; --warn-soft:#FFEBDD;
+  --shadow:0 6px 0 rgba(34,48,74,.06),0 10px 24px rgba(63,166,238,.12);
+  --f-display:"Baloo 2","Be Vietnam Pro",ui-rounded,system-ui,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121A2A; --bg2:#1A1A2A; --surface:#1C2639; --ink:#EAF2FF; --muted:#9DAAC3; --line:#2B3851;
+  --sky:#6CC0FF; --sky-soft:#1E3550; --peach:#FF9E8B; --peach-soft:#3A2630; --mint:#4FD9AE; --mint-soft:#173A33;
+  --sun:#FFD465; --sun-soft:#3A3320; --berry:#FF79AA; --berry-soft:#3B2235; --warn:#FFA36E; --warn-soft:#3A2A20;
+  --shadow:0 6px 0 rgba(0,0,0,.25),0 10px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121A2A; --bg2:#1A1A2A; --surface:#1C2639; --ink:#EAF2FF; --muted:#9DAAC3; --line:#2B3851;
+  --sky:#6CC0FF; --sky-soft:#1E3550; --peach:#FF9E8B; --peach-soft:#3A2630; --mint:#4FD9AE; --mint-soft:#173A33;
+  --sun:#FFD465; --sun-soft:#3A3320; --berry:#FF79AA; --berry-soft:#3B2235; --warn:#FFA36E; --warn-soft:#3A2A20;
+  --shadow:0 6px 0 rgba(0,0,0,.25),0 10px 24px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;-webkit-text-size-adjust:100%;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  background:radial-gradient(1200px 400px at 20% -80px,var(--sky-soft),transparent 70%),radial-gradient(800px 300px at 110% 10%,var(--peach-soft),transparent 70%),var(--bg);
+  background-attachment:fixed;padding-inline:16px;padding-block:env(safe-area-inset-top,0px) 104px}
+.wrap{max-width:560px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:10px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding-block:12px 10px;
+  background:linear-gradient(var(--bg) 70%,transparent);display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;flex:none}
+.brand{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.2px}
+.brand small{display:block;font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--muted);margin-top:-2px}
+.preview{margin-left:auto;min-width:0}
+.preview select{font:inherit;font-size:13px;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 10px;max-width:150px}
+
+.card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:16px;border:2px solid var(--line)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--muted)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.cc{color:#fff}
+.tab[hidden]{display:none}
+
+/* hero */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:16px 16px 14px;
+  background:linear-gradient(160deg,var(--sky-soft),var(--surface) 60%);}
+.qi{width:140px;height:140px;max-width:100%;object-fit:cover;border-radius:26px;border:3px solid var(--surface);box-shadow:0 6px 14px rgba(34,48,74,.18)}
+.qi .bob{animation:bob 2.6s ease-in-out infinite;transform-origin:100px 240px}
+@keyframes bob{50%{transform:translateY(-3px) rotate(-1.5deg)}}
+@media (prefers-reduced-motion:reduce){.qi .bob{animation:none}}
+.bubble{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px 12px;min-width:0}
+.bubble:before{content:"";position:absolute;left:-9px;top:22px;width:14px;height:14px;background:var(--surface);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.bubble h2{font-size:21px}
+.where{font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--berry)}
+.clocks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.clock{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px 12px}
+.clock b{font-family:var(--f-display);font-size:26px;font-variant-numeric:tabular-nums;display:block;line-height:1.1}
+.clock span{font-size:12px;color:var(--muted)}
+
+.countdown{display:flex;gap:8px;margin-top:4px}
+.cd{flex:1;text-align:center;background:var(--sun-soft);border-radius:14px;padding:6px 4px}
+.cd b{font-family:var(--f-display);font-size:28px;line-height:1;display:block;font-variant-numeric:tabular-nums}
+.cd span{font-size:11px;color:var(--muted);font-weight:600}
+
+.wx{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.wx-ico{width:64px;height:64px}
+.wx-temp{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1}
+.wx-temp small{font-size:16px;color:var(--muted);font-weight:600}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;font-size:13px;border-radius:999px;padding:8px 12px;border:2px solid transparent;cursor:pointer}
+.btn.sky{background:var(--sky-soft);color:var(--ink);border-color:var(--sky)}
+.btn.peach{background:var(--peach-soft);color:var(--ink);border-color:var(--peach)}
+.btn.mint{background:var(--mint-soft);color:var(--ink);border-color:var(--mint)}
+.btn .dot{width:8px;height:8px;border-radius:50%;background:#E5383B;box-shadow:0 0 0 3px rgba(229,56,59,.2)}
+
+.agenda{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.agenda li{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:start}
+.agenda time{font-family:var(--f-display);font-weight:700;color:var(--sky);font-variant-numeric:tabular-nums}
+
+.alert{display:grid;grid-template-columns:auto 1fr;gap:10px;background:var(--warn-soft);border:2px dashed var(--warn);border-radius:18px;padding:12px}
+.alert .ic{width:28px;height:28px;border-radius:50%;background:var(--warn);color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--f-display)}
+.alert b{color:var(--warn)}
+
+/* summary strip */
+.route{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.route::-webkit-scrollbar{display:none}
+.leg{flex:none;border-radius:16px;padding:8px 10px;min-width:92px;color:#fff}
+.leg b{display:block;font-family:var(--f-display);font-size:16px;line-height:1.1}
+.leg span{font-size:11px;opacity:.95;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.stat{text-align:center;background:var(--bg);border-radius:14px;padding:8px 2px}
+.stat b{font-family:var(--f-display);font-size:24px;line-height:1;display:block}
+.stat span{font-size:11px;color:var(--muted);font-weight:600}
+
+/* timeline */
+.days{display:flex;flex-direction:column;gap:12px}
+.day{display:grid;grid-template-columns:56px 1fr;gap:10px}
+.date{text-align:center;border-radius:18px;padding:8px 2px;height:max-content;color:#fff}
+.date b{font-family:var(--f-display);font-size:24px;line-height:1;display:block}
+.date span{font-size:11px;font-weight:700}
+.day .card{padding:12px 14px;min-width:0}
+.day.now .card{border-color:var(--berry);box-shadow:0 0 0 4px var(--berry-soft),var(--shadow)}
+.day h3{font-size:18px}
+.stops{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.stop{background:var(--bg);border-radius:10px;padding:3px 9px;font-size:13px}
+.tip{margin-top:8px;font-size:13px;background:var(--sun-soft);border-radius:12px;padding:6px 10px}
+.tip.w{background:var(--warn-soft)}
+.who{font-size:12px;font-weight:700;margin-top:4px}
+
+/* flights */
+.flight{padding:0;overflow:hidden}
+.fh{padding:12px 16px;color:#fff;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.fh h3{font-size:19px}
+.fb{padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+.seg{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.seg .ap b{font-family:var(--f-display);font-size:28px;line-height:1;display:block}
+.seg .ap span{font-size:12px;color:var(--muted)}
+.seg .ap.r{text-align:right}
+.seg .mid{text-align:center;font-size:11px;color:var(--muted);font-weight:600}
+.seg .mid i{display:block;width:70px;height:2px;margin:4px auto;background:repeating-linear-gradient(90deg,var(--muted) 0 4px,transparent 4px 8px)}
+.seg .t{font-family:var(--f-display);font-weight:700;font-size:16px;color:var(--ink)}
+.transit{font-size:13px;text-align:center;background:var(--bg);border-radius:12px;padding:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.okbox{background:var(--mint-soft);border-radius:14px;padding:10px 12px;font-size:13px}
+.okbox b{color:var(--mint)}
+.okbox ul{margin:6px 0 0;padding-left:18px}
+.okbox li{margin-block:3px}
+code.copy{background:var(--bg);border-radius:8px;padding:1px 6px;font-weight:700;cursor:pointer;border:1px dashed var(--line)}
+
+/* places */
+.places{display:grid;grid-template-columns:1fr;gap:10px}
+.place{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:start}
+.place .wx-ico{width:48px;height:48px}
+.place h3{font-size:17px}
+.temps{font-family:var(--f-display);font-weight:700;font-variant-numeric:tabular-nums}
+.filter{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter button{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* pocket */
+.check{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:4px}
+.check label{display:flex;gap:10px;align-items:center;padding:6px 4px;border-radius:10px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--mint);flex:none}
+.check input:checked+span{text-decoration:line-through;color:var(--muted)}
+.contacts{display:flex;flex-direction:column;gap:8px}
+.contact{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.contact code{font-family:var(--f-display);font-size:17px;font-weight:700}
+.tz{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.tz div{background:var(--bg);border-radius:14px;padding:8px 4px}
+.tz b{font-family:var(--f-display);font-size:20px;display:block;line-height:1.1}
+.tz span{font-size:11px;color:var(--muted);font-weight:600}
+.bk-list{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.bk{display:grid;grid-template-columns:48px 1fr;gap:10px;font-size:13.5px}
+.bk h3{font-size:17px}
+.bk-d{background:#2C6FD6;color:#fff;border-radius:14px;text-align:center;padding:6px 0;height:max-content}
+.bk-d b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
+.bk-d span{font-size:11px;font-weight:700}
+ul.plain{margin:6px 0 0;padding-left:18px}
+ul.plain li{margin-block:3px}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:2px solid var(--line);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center}
+nav.tabs .in{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;width:100%;max-width:560px}
+nav.tabs button{background:none;border:0;border-radius:14px;padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:700;color:var(--muted)}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--sky-soft)}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;z-index:20}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-block:6px 0}
+.sec-title h2{font-size:22px}
+[hidden]{display:none!important}
+img{max-width:100%}
+.lock form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.lock input{flex:1;min-width:0;font:inherit;font-size:16px;border:2px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--bg);color:var(--ink)}
+.lock .btn{font-size:14px}
+.lockhint{font-size:13px;background:var(--sky-soft);border-radius:14px;padding:8px 12px}
+.live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--mint)}
+.live:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mint)}
+.fc{font-size:13px;margin-top:4px}
+.gps{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#3FA6EE"/><path d="M8 27 L16 15 L21 22 L25 17 L32 27 Z" fill="#fff"/><circle cx="29" cy="11" r="4" fill="#FFC93C"/></svg>
+    <div class="brand">Hành trình - Qi<small>Thụy Sĩ · Đức · Iceland · 19/10 – 02/11</small></div>
+    <div class="preview">
+      <label class="eyebrow" for="when" hidden>Xem ngày</label>
+      <select id="when" aria-label="Xem app như vào ngày"></select>
+    </div>
+  </header>
+
+  <!-- HÔM NAY -->
+  <section class="tab stack" id="t-home">
+    <div class="card hero">
+      <img class="qi" src="icons/qi-avatar.jpg" alt="Qi chibi bên tàu Bernina Express, ôm mèo, cầm máy ảnh" width="140" height="140">
+      <div class="bubble">
+        <div class="where" id="h-where">…</div>
+        <h2 id="h-title">…</h2>
+        <div class="muted" id="h-sub" style="font-size:13px;margin-top:2px"></div>
+      </div>
+      <div style="grid-column:1/-1" id="h-extra"></div>
+    </div>
+
+    <div class="clocks" style="margin-top:0">
+      <div class="clock"><span id="c-loc-l">Giờ nơi Qi ở</span><b id="c-loc">--:--</b><span id="c-loc-z"></span></div>
+      <div class="clock"><span>Giờ Việt Nam</span><b id="c-vn">--:--</b><span id="c-diff"></span></div>
+    </div>
+
+    <div class="card" id="h-gps"></div>
+    <div class="card" id="h-wx"></div>
+    <div id="h-alerts" class="stack"></div>
+    <div class="card" id="h-agenda"></div>
+
+    <div class="card">
+      <div class="eyebrow">Tóm tắt chuyến đi</div>
+      <h2 style="font-size:20px;margin-top:2px">15 ngày · 6 quốc gia đặt chân · 7 chuyến bay</h2>
+      <p class="muted" style="margin:6px 0 10px;font-size:13.5px">Đi cùng đoàn NuLife qua Thụy Sĩ (có Bernina Express sang Tirano, Ý) và Bavaria. Sáng 26/10 Qi tách đoàn ở Munich, bay sang Iceland 5 ngày với tour riêng: bờ biển Nam, hang băng, Blue Lagoon, Golden Circle, bán đảo Snæfellsnes. Về qua Copenhagen và Bắc Kinh, đáp Tân Sơn Nhất rạng sáng 2/11.</p>
+      <div class="route" id="route"></div>
+      <div class="stats">
+        <div class="stat"><b>7</b><span>chặng bay</span></div>
+        <div class="stat"><b>~4h</b><span>Bernina Express</span></div>
+        <div class="stat"><b>2.253m</b><span>điểm cao nhất</span></div>
+        <div class="stat"><b>~9h</b><span>nắng/ngày ở Iceland</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LỊCH TRÌNH -->
+  <section class="tab stack" id="t-plan" hidden>
+    <div class="sec-title"><h2>Lịch trình từng ngày</h2><span class="muted" style="font-size:12px">giờ địa phương</span></div>
+    <div class="days" id="days"></div>
+  </section>
+
+  <!-- BAY -->
+  <section class="tab stack" id="t-fly" hidden>
+    <div class="lockhint" id="lock-hint">Mã đặt chỗ và số vé đang khóa. Mở khóa ở tab <b>Bỏ túi</b>.</div>
+    <div class="sec-title"><h2>Vé máy bay</h2><span class="muted" style="font-size:12px">chạm mã để chép</span></div>
+    <p class="muted" style="margin:0;font-size:13px">Giờ bay lấy theo vé gốc. Thông tin xách tay, phòng chờ, nhà ga đã tra lại trên nguồn của hãng và sân bay, đánh dấu ✔.</p>
+    <div id="flights" class="stack"></div>
+  </section>
+
+  <!-- THỜI TIẾT & CAM -->
+  <section class="tab stack" id="t-wx" hidden>
+    <div class="sec-title"><h2>Thời tiết &amp; Live cam</h2></div>
+    <p class="muted" style="margin:0;font-size:13px">Nhiệt độ hiện tại và dự báo lấy trực tiếp, tự cập nhật mỗi 30 phút. Ngày còn xa hơn 16 ngày thì hiện mức trung bình cuối tháng 10. Bấm <b>Dự báo trực tiếp</b> để xem số liệu giờ này, bấm <b>Live cam</b> để mở camera trực tiếp tại điểm đó.</p>
+    <div class="filter" id="wx-filter" role="group" aria-label="Lọc theo nước"></div>
+    <div class="places" id="places"></div>
+  </section>
+
+  <!-- BỎ TÚI -->
+  <section class="tab stack" id="t-pocket" hidden>
+    <div class="sec-title"><h2>Bỏ túi</h2></div>
+    <div class="card lock" id="lockcard">
+      <div class="eyebrow">Thông tin riêng</div>
+      <div id="lock-off"><p style="margin:4px 0 0;font-size:13.5px">Mã đặt chỗ, số vé, mã tour và số liên hệ đang được khóa. Nhập mật khẩu để xem trên máy này.</p>
+      <form id="unlock" autocomplete="on"><input type="password" id="pw" name="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"><button class="btn sky" type="submit" id="pw-btn">Mở khóa</button></form>
+      <div id="lockmsg" class="muted" style="font-size:13px;margin-top:6px"></div></div>
+      <div id="lock-on" hidden><p style="margin:4px 0 8px;font-size:13.5px">Đã mở khóa trên máy này. Mã vé và liên hệ hiện đầy đủ ở các tab.</p><button class="btn peach" type="button" id="relock">Khóa lại</button></div>
+    </div>
+    <div id="sec-book"><div class="card">
+      <div class="eyebrow">Các tour ở Iceland</div>
+      <div class="bk-list">
+        <div class="bk"><div class="bk-d"><b>27</b><span>th10</span></div><div style="min-width:0"><h3>Hang băng Crystal Blue</h3><div class="muted">09:30–12:30 · sông băng Vatnajökull, xuất phát từ hồ Jökulsárlón</div></div></div>
+        <div class="bk"><div class="bk-d"><b>28</b><span>th10</span></div><div style="min-width:0"><h3>Blue Lagoon</h3><div class="muted">Từ 08:00, khoảng 3 tiếng · Grindavík</div></div></div>
+        <div class="bk"><div class="bk-d"><b>30</b><span>th10</span></div><div style="min-width:0"><h3>Bán đảo Snæfellsnes</h3><div class="muted">Tour nhóm nhỏ cả ngày, 08:00–20:00</div></div></div>
+      </div>
+    </div></div>
+    <div id="sec-contacts"><div class="card">
+      <div class="eyebrow">Khẩn cấp</div>
+      <div class="contacts" style="margin-top:8px"><div class="contact"><div>Châu Âu &amp; Iceland</div><code class="copy" data-copy="112">112</code></div></div>
+    </div></div>
+    <div class="card">
+      <div class="eyebrow">Chênh giờ so với Việt Nam</div>
+      <div class="tz" style="margin-top:8px">
+        <div><b>−5h</b><span>Thụy Sĩ, Đức, Ý<br>đến 24/10</span></div>
+        <div><b>−6h</b><span>Châu Âu từ 25/10<br>(lùi đồng hồ)</span></div>
+        <div><b>−7h</b><span>Iceland<br>cả năm</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Tiền</div>
+      <ul class="plain">
+        <li>Thụy Sĩ dùng CHF (≈33.000đ), Đức, Ý dùng EUR (≈31.000đ), Iceland dùng ISK nhưng quẹt thẻ được gần như mọi nơi.</li>
+        <li>Quẹt thẻ chọn trả bằng tiền địa phương, không chọn VND.</li>
+        <li>Cửa hàng Đức, Thụy Sĩ đóng cửa Chủ Nhật 25/10, mua sắm vào Thứ Bảy 24/10.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Hành lý</div>
+      <ul class="plain">
+        <li><b>Gói vali dưới 23kg ngay từ đầu.</b> Qatar cho 25kg nhưng SAS và Air China chỉ 23kg, dư sẽ bị thu phí ở Munich.</li>
+        <li>Không mang thịt, sữa và đồ làm từ thịt, sữa (chà bông, lạp xưởng, khô bò, sữa bột), trái cây tươi.</li>
+        <li>Sạc dự phòng để trong hành lý xách tay. Dao, kéo, chất lỏng trên 100ml để vali ký gửi.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Checklist đồ mang · tự lưu trên máy này</div>
+      <ul class="check" id="check"></ul>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="Mục">
+  <div class="in" role="tablist">
+    <button role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/></svg>Hôm nay</button>
+    <button role="tab" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Lịch trình</button>
+    <button role="tab" data-tab="fly" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14 3 11l1-2 7 1 5-6c1-1 3-1 3 0s-1 2-2 3l-5 5 1 7-2 1-3-7"/></svg>Chuyến bay</button>
+    <button role="tab" data-tab="wx" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3"/><path d="M8 2v1M2 9h1M3.8 4.8l.7.7M17 20H8a4 4 0 1 1 1-7.9A5 5 0 0 1 18.6 13 3.5 3.5 0 0 1 17 20z"/></svg>Thời tiết</button>
+    <button role="tab" data-tab="pocket" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Bỏ túi</button>
+  </div>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const CC={VN:["Việt Nam","#E0484F"],QA:["Qatar","#8A1C4A"],CH:["Thụy Sĩ","#E5383B"],IT:["Ý","#2F9E5B"],DE:["Đức","#D99A00"],DK:["Đan Mạch","#C8324A"],IS:["Iceland","#2C6FD6"],CN:["Trung Quốc","#D23A2C"],AIR:["Trên máy bay","#6C7BD9"]};
+
+/* Places: late-October typical highs/lows (reference only) */
+const P={
+ hcm:{n:"TP.HCM",cc:"VN",lat:10.82,lon:106.66,hi:32,lo:25,w:"rain",note:"Cuối mùa mưa, chiều hay có mưa rào."},
+ doh:{n:"Doha (quá cảnh)",cc:"QA",lat:25.27,lon:51.61,hi:33,lo:24,w:"sun",note:"Nóng khô, nhưng sân bay lạnh máy lạnh, giữ áo khoác mỏng."},
+ zrh:{n:"Zurich",cc:"CH",lat:47.37,lon:8.54,hi:13,lo:5,w:"cloud",note:"Se lạnh như Đà Lạt mùa đông, sáng sớm có sương.",cam:"Zurich live webcam"},
+ ber:{n:"Đèo Bernina 2.253m",cc:"CH",lat:46.41,lon:10.02,hi:3,lo:-4,w:"snow",note:"Quanh 0°C, có thể gặp tuyết đầu mùa. Mặc giữ nhiệt, mũ, găng.",cam:"Bernina Pass Ospizio live webcam"},
+ tir:{n:"Tirano (Ý)",cc:"IT",lat:46.22,lon:10.17,hi:16,lo:6,w:"sun",note:"Ấm hơn hẳn trên đèo, cởi bớt áo khoác.",cam:"Tirano live webcam"},
+ int:{n:"Interlaken · Brienz",cc:"CH",lat:46.69,lon:7.86,hi:13,lo:4,w:"cloud",note:"Du thuyền hồ Brienz gió lạnh trên mặt nước.",cam:"Interlaken live webcam"},
+ mur:{n:"Mürren · Grindelwald",cc:"CH",lat:46.56,lon:7.89,hi:8,lo:1,w:"cloud",note:"Làng trên núi, lạnh hơn thung lũng 5–6°C.",cam:"Grindelwald Eiger live webcam"},
+ luz:{n:"Lucerne · Thác Rhine",cc:"CH",lat:47.05,lon:8.31,hi:13,lo:5,w:"cloud",note:"Hay có sương mù sáng trên hồ.",cam:"Lucerne Chapel Bridge live webcam"},
+ muc:{n:"Munich",cc:"DE",lat:48.14,lon:11.58,hi:12,lo:3,w:"cloud",note:"Tối lạnh, Night tour cần áo ấm.",cam:"Munich Marienplatz live webcam"},
+ neu:{n:"Neuschwanstein · Mittenwald",cc:"DE",lat:47.56,lon:10.75,hi:11,lo:2,w:"cloud",note:"Cầu Marienbrücke gió mạnh.",cam:"Neuschwanstein live webcam"},
+ rkv:{n:"Reykjavík",cc:"IS",lat:64.15,lon:-21.94,hi:6,lo:1,w:"wind",note:"Gió mạnh, mưa ngang. Trời sáng khoảng 9h–17h20. Có cơ hội ngắm cực quang.",cam:"Reykjavik live webcam",lfi:true},
+ vik:{n:"Vík · Reynisfjara",cc:"IS",lat:63.42,lon:-19.01,hi:6,lo:2,w:"wind",note:"Bãi biển đen có sóng lừa, đứng xa mép nước.",cam:"Vik Iceland live webcam",lfi:true},
+ jok:{n:"Jökulsárlón · hang băng",cc:"IS",lat:64.05,lon:-16.18,hi:5,lo:0,w:"snow",note:"Lạnh và gió nhất chuyến. Giày chống nước, găng tay.",cam:"Jokulsarlon live webcam",lfi:true},
+ gc:{n:"Golden Circle · Geysir",cc:"IS",lat:64.31,lon:-20.30,hi:5,lo:-1,w:"wind",note:"Đường có thể đóng băng buổi sáng.",cam:"Geysir Gullfoss live webcam",lfi:true},
+ grv:{n:"Grindavík · Blue Lagoon",cc:"IS",lat:63.88,lon:-22.45,hi:6,lo:1,w:"wind",note:"Nước hồ khoảng 38°C, gió ngoài trời rất lạnh khi lên bờ.",cam:"Blue Lagoon Grindavik live webcam",lfi:true},
+ snf:{n:"Snæfellsnes · Kirkjufell",cc:"IS",lat:64.93,lon:-23.31,hi:6,lo:1,w:"wind",note:"Bán đảo hứng gió biển, mưa đổi liên tục. Mặc chống nước cả ngày.",cam:"Kirkjufell Snaefellsnes live webcam",lfi:true},
+ pek:{n:"Bắc Kinh (quá cảnh)",cc:"CN",lat:40.08,lon:116.58,hi:14,lo:3,w:"sun",note:"Khô, trong lành. Ở trong khu quá cảnh T3E."}
+};
+
+/* Timeline segments in UTC. tz = offset hours from UTC at that place */
+const S=[
+ {to:"2026-10-19T13:00Z",kind:"home",p:"hcm",tz:7,cc:"VN",title:"Đang chuẩn bị ở nhà",where:"TP.HCM"},
+ {to:"2026-10-19T20:30Z",kind:"fly",p:"hcm",tz:7,cc:"AIR",title:"Đang bay QR971",where:"TP.HCM → Doha",fl:"QR971"},
+ {to:"2026-10-20T05:20Z",kind:"transit",p:"doh",tz:3,cc:"QA",title:"Quá cảnh qua đêm ở Doha",where:"Sân bay Hamad, Doha"},
+ {to:"2026-10-20T12:20Z",kind:"fly",p:"doh",tz:3,cc:"AIR",title:"Đang bay QR95",where:"Doha → Zurich",fl:"QR95"},
+ {to:"2026-10-21T04:00Z",kind:"stay",p:"zrh",tz:2,cc:"CH",title:"Chào Zurich!",where:"Zurich, Thụy Sĩ"},
+ {to:"2026-10-22T04:00Z",kind:"stay",p:"ber",tz:2,cc:"CH",title:"Ngày Bernina Express",where:"Chur → Đèo Bernina → Tirano"},
+ {to:"2026-10-23T04:00Z",kind:"stay",p:"int",tz:2,cc:"CH",title:"Geneva, Bern, Interlaken",where:"Vùng hồ Thun – Brienz"},
+ {to:"2026-10-24T04:00Z",kind:"stay",p:"mur",tz:2,cc:"CH",title:"Một ngày giữa Alps",where:"Lauterbrunnen · Mürren · Grindelwald"},
+ {to:"2026-10-25T05:00Z",kind:"stay",p:"luz",tz:2,cc:"CH",title:"Lucerne rồi sang Munich",where:"Thác Rhine · Lucerne · Munich"},
+ {to:"2026-10-26T06:00Z",kind:"stay",p:"neu",tz:1,cc:"DE",title:"Lâu đài cổ tích",where:"Mittenwald · Neuschwanstein · Munich"},
+ {to:"2026-10-26T09:15Z",kind:"stay",p:"muc",tz:1,cc:"DE",title:"Tách đoàn ra sân bay",where:"Munich → sân bay MUC"},
+ {to:"2026-10-26T10:55Z",kind:"fly",p:"muc",tz:1,cc:"AIR",title:"Đang bay SK662",where:"Munich → Copenhagen",fl:"SK662"},
+ {to:"2026-10-26T13:45Z",kind:"transit",p:"muc",tz:1,cc:"DK",title:"Nối chuyến ở Copenhagen",where:"Sân bay CPH T3"},
+ {to:"2026-10-26T17:20Z",kind:"fly",p:"rkv",tz:1,cc:"AIR",title:"Đang bay SK2595",where:"Copenhagen → Keflavík",fl:"SK2595"},
+ {to:"2026-10-27T04:00Z",kind:"stay",p:"rkv",tz:0,cc:"IS",title:"Chào Iceland!",where:"Keflavík → Reykjavík"},
+ {to:"2026-10-28T06:00Z",kind:"stay",p:"jok",tz:0,cc:"IS",title:"Bờ biển Nam & hang băng",where:"Jökulsárlón · Vík · các thác"},
+ {to:"2026-10-29T06:00Z",kind:"stay",p:"grv",tz:0,cc:"IS",title:"Grindavík & Blue Lagoon",where:"Bán đảo Reykjanes"},
+ {to:"2026-10-30T06:00Z",kind:"stay",p:"gc",tz:0,cc:"IS",title:"Golden Circle",where:"Þingvellir · Geysir · Gullfoss"},
+ {to:"2026-10-31T06:00Z",kind:"stay",p:"snf",tz:0,cc:"IS",title:"Tour bán đảo Snæfellsnes",where:"Snæfellsnes, cả ngày"},
+ {to:"2026-10-31T13:45Z",kind:"stay",p:"rkv",tz:0,cc:"IS",title:"Ra sân bay về nhà",where:"Reykjavík → Keflavík"},
+ {to:"2026-11-01T04:20Z",kind:"fly",p:"pek",tz:0,cc:"AIR",title:"Đang bay CA808",where:"Keflavík → Copenhagen → Bắc Kinh",fl:"CA808"},
+ {to:"2026-11-01T12:40Z",kind:"transit",p:"pek",tz:8,cc:"CN",title:"Quá cảnh 8 tiếng ở Bắc Kinh",where:"Sân bay PEK T3"},
+ {to:"2026-11-01T18:10Z",kind:"fly",p:"hcm",tz:8,cc:"AIR",title:"Chặng cuối CA903",where:"Bắc Kinh → TP.HCM",fl:"CA903"},
+ {to:"2100-01-01T00:00Z",kind:"done",p:"hcm",tz:7,cc:"VN",title:"Về nhà rồi!",where:"TP.HCM"}
+];
+
+let DAYS=[
+ {d:"2026-10-19",cc:"VN",t:"Khởi hành",ag:[["17:00","Có mặt Tân Sơn Nhất T2, ký gửi hành lý"],["17:30","Phòng chờ Rose Business Lounge (cổng 8–9)"],["20:00","QR971 bay đi Doha"],["23:30","Đến Doha. Phòng chờ Al Maha tối đa 4 giờ"]],stops:["SGN T2","Doha"],tip:"Check-in online mở từ 20:00 ngày 17/10."},
+ {d:"2026-10-20",cc:"CH",t:"Zurich",ag:[["08:20","QR95 rời Doha (giờ Doha)"],["14:20","Đến Zurich, xe đón về khách sạn"],["Chiều","Walking tour phố cổ, Bahnhofstrasse, hồ Zurich"],["Tối","Dạo bờ sông Limmat về đêm"]],stops:["Phố cổ","Bahnhofstrasse","Hồ Zurich","Sông Limmat"],who:"Cùng đoàn NuLife"},
+ {d:"2026-10-21",cc:"CH",t:"Bernina Express",ag:[["Sáng","Lên tàu từ Chur, toa panorama"],["Trưa","Cầu Landwasser, vòng xoắn Bergün, Hồ Trắng"],["Chiều","Alp Grüm, cầu xoắn Brusio, tới Tirano (Ý)"]],stops:["Chur","Cầu Landwasser","Đèo Bernina 2.253m","Alp Grüm","Brusio","Tirano 🇮🇹"],tip:"Thử pizzoccheri ở Tirano. Ngày này dùng EUR.",who:"Cùng đoàn NuLife"},
+ {d:"2026-10-22",cc:"CH",t:"Geneva · Bern · Interlaken",ag:[["Sáng","Geneva"],["Trưa","Phố cổ Bern"],["Chiều","Interlaken, du thuyền hồ Brienz, thị trấn hồ Thun"]],stops:["Geneva","Bern","Interlaken","Hồ Brienz","Thun"],who:"Cùng đoàn NuLife"},
+ {d:"2026-10-23",cc:"CH",t:"Lauterbrunnen · Mürren · Grindelwald",ag:[["Sáng","Thung lũng 72 thác nước Lauterbrunnen"],["Trưa","Cáp treo + tàu lên Mürren 1.638m"],["Chiều","Grindelwald dưới vách Eiger"]],stops:["Lauterbrunnen","Mürren","Grindelwald"],who:"Cùng đoàn NuLife"},
+ {d:"2026-10-24",cc:"DE",t:"Thác Rhine · Lucerne → Munich",ag:[["Sáng","Trả phòng, thác Rhine"],["Trưa","Phố cổ Lucerne, cầu gỗ Chapel"],["Chiều","Panorama Express, tàu sang Munich"],["Tối","Marienplatz, Hofbräuhaus"]],stops:["Thác Rhine","Lucerne","Munich"],tip:"Thứ Bảy, ngày đẹp nhất để mua sắm.",who:"Cùng đoàn NuLife"},
+ {d:"2026-10-25",cc:"DE",t:"Mittenwald · Neuschwanstein",ag:[["03:00","Châu Âu lùi đồng hồ 1 tiếng"],["Sáng","Làng Mittenwald, hồ Lautersee"],["Chiều","Lâu đài Neuschwanstein, cầu Marienbrücke"]],stops:["Mittenwald","Lautersee","Neuschwanstein","Marienbrücke"],tip:"Tối nay báo HDV việc sáng mai Qi tách đoàn ra sân bay sớm.",warn:true,who:"Cùng đoàn NuLife · ngày cuối với đoàn"},
+ {d:"2026-10-26",cc:"IS",t:"Munich → Copenhagen → Iceland",ag:[["07:30","Rời khách sạn ra sân bay MUC (S-Bahn S1/S8 khoảng 40 phút). Nhà ga T1"],["10:15","SK662 bay Copenhagen"],["11:55","Đến CPH T3, nối chuyến 2h50"],["14:45","SK2595 bay Keflavík"],["17:20","Đến Keflavík, có người quen đón"]],stops:["MUC","CPH T3","KEF"],tip:"Qi bỏ lỡ city tour Munich của đoàn hôm nay vì bay sớm. Vali tối đa 23kg.",warn:true,who:"Tự đi · có người quen đón"},
+ {d:"2026-10-27",cc:"IS",t:"Bờ biển Nam & hang băng",ag:[["04:00","Xuất phát"],["09:30","Tour hang băng Crystal Blue (đến 12:30). Gặp ở bãi xe Jökulsárlón"],["Chiều","Diamond Beach, Jökulsárlón, nhà thờ Hofskirkja, Lómagnúpur"],["Chiều tối","Vík, Reynisfjara, Dyrhólaey, Skógafoss, Seljalandsfoss, Gljúfrabúi"],["Đêm","Về Reykjavík"]],stops:["Hang băng","Diamond Beach","Jökulsárlón","Hofskirkja","Lómagnúpur","Nhà thờ Vík","Víkurfjara","Dyrhólaey","Reynisfjara","Skógafoss","Seljalandsfoss","Gljúfrabúi"],tip:"Ngày rất dài, khoảng 750km. Ngủ sớm tối 26/10, mang đồ ăn vặt, giày chống nước. Ở Reynisfjara đứng xa mép sóng.",warn:true,who:"Tour riêng Iceland"},
+ {d:"2026-10-28",cc:"IS",t:"Blue Lagoon & Grindavík",ag:[["08:00","Blue Lagoon, giờ vào 08:00"],["11:00","Kết thúc Blue Lagoon"],["Trưa","Thăm Grindavík, thị trấn bị dung nham núi lửa vùi"],["15:00","Đón thêm 2 người"]],stops:["Blue Lagoon","Grindavík"],tip:"Tối 27/10 về muộn, sáng nay dậy khoảng 6:45 để kịp giờ vào 08:00. Mang đồ bơi, khăn có thể thuê tại chỗ.",who:"Tour riêng Iceland"},
+ {d:"2026-10-29",cc:"IS",t:"Golden Circle",ag:[["Cả ngày","Þingvellir → Brúarárfoss → Geysir → Brú Horsefarm → Gullfoss → miệng núi lửa Kerið"]],stops:["Þingvellir","Brúarárfoss","Geysir","Brú Horsefarm","Gullfoss","Kerið"],who:"Tour riêng Iceland"},
+ {d:"2026-10-30",cc:"IS",t:"Tour bán đảo Snæfellsnes",ag:[["07:50","Ra điểm đón xe tour"],["08:00","Xe đón, có thể trễ tới 40 phút"],["Cả ngày","Tour nhóm nhỏ quanh bán đảo Snæfellsnes"],["20:00","Về Reykjavík"]],stops:["Snæfellsnes","Kirkjufell"],tip:"Mang áo chống nước, mũ, găng, giày chắc, nước và đồ ăn vặt.",who:"Your Day Tours"},
+ {d:"2026-10-31",cc:"IS",t:"Rời Iceland",ag:[["11:15","Có mặt sân bay Keflavík"],["13:45","CA808 bay Copenhagen"],["17:55","Dừng Copenhagen, ngồi chờ cùng chuyến"],["20:30","CA808 tiếp tục bay Bắc Kinh"]],stops:["KEF","CPH 17:55–20:30"],who:"Tour đưa ra sân bay"},
+ {d:"2026-11-01",cc:"CN",t:"Quá cảnh Bắc Kinh",ag:[["12:20","Đến Bắc Kinh T3"],["Chiều","Phòng chờ CIP International ở T3E (DragonPass)"],["20:40","CA903 bay về TP.HCM"]],stops:["PEK T3"],tip:"Ở lại khu quá cảnh. Nếu muốn ra ngoài, kiểm tra trước điều kiện miễn visa quá cảnh cho hộ chiếu Việt Nam.",who:"Tự đi"},
+ {d:"2026-11-02",cc:"VN",t:"Về đến nhà",ag:[["01:10","Đáp Tân Sơn Nhất T2"]],stops:["SGN T2"],tip:"Đáp lúc rạng sáng, hẹn người đón trước.",who:""}
+];
+
+let FLIGHTS=[
+ {air:"Qatar Airways",col:"#8A1C4A",segs:[
+   {fl:"QR971",a:"SGN",an:"Tân Sơn Nhất T2",at:"20:00",ad:"19/10",b:"DOH",bn:"Hamad, Doha",bt:"23:30",bd:"19/10",dur:"7g30"},
+   {transit:"Quá cảnh Doha 8g50 qua đêm"},
+   {fl:"QR95",a:"DOH",an:"Hamad, Doha",at:"08:20",ad:"20/10",b:"ZRH",bn:"Zurich",bt:"14:20",bd:"20/10",dur:"7g00"}],
+  kv:[["Hạng","Economy · N · Fare NLVNU1RI"],["Ký gửi","25kg, gửi thẳng tới Zurich"],["Xách tay","1 kiện 7kg, tối đa 50×37×25cm ✔"],["Phòng chờ SGN","Rose Business Lounge gần cổng 8–9, DragonPass tối đa 3 giờ. Hoặc Jasmine Halal gần cổng 17, tối đa 2 giờ ✔"],["Phòng chờ Doha","Al Maha Lounge (South), tầng 2 trên khu Duty Free South, gần cổng A–C. Giới hạn 4 giờ, có thể kín chỗ 22:00–02:00 và 04:00–07:00 ✔"],["Check-in online","Mở 48 tiếng trước, từ 20:00 ngày 17/10"]],
+  ok:["QR971 thực chất cất cánh từ Phnom Penh, ghé TP.HCM rồi đi Doha. Giờ đi SGN 20:00 khớp lịch hãng.","QR95 theo lịch thường lệ 08:20 → 14:20, khớp vé. Riêng ngày 08/10 chuyến này đã đổi giờ, nên xem lại trạng thái chuyến trước ngày bay."],
+  note:"Phòng chờ Doha chỉ cho ở tối đa 4 giờ, nên chia thời gian: vài tiếng ở khu ghế nghỉ yên tĩnh, rồi vào phòng chờ trước giờ bay."},
+ {air:"SAS Scandinavian",col:"#1E3E8F",segs:[
+   {fl:"SK662",a:"MUC",an:"Munich T1",at:"10:15",ad:"26/10",b:"CPH",bn:"Copenhagen T3",bt:"11:55",bd:"26/10",dur:"1g40"},
+   {transit:"Nối chuyến Copenhagen T3 · 2g50 · hành lý gửi thẳng"},
+   {fl:"SK2595",a:"CPH",an:"Copenhagen T3",at:"14:45",ad:"26/10",b:"KEF",bn:"Keflavík",bt:"17:20",bd:"26/10",dur:"3g35"}],
+  kv:[["Hạng","Economy"],["Ký gửi","1 kiện 23kg, tổng 3 chiều ≤158cm"],["Xách tay","1 kiện 8kg, 55×40×23cm"],["Đồ cá nhân","1 túi 40×30×15cm, để dưới ghế"],["Phòng chờ","Không cần, đi thẳng ra cửa ở CPH"]],
+  ok:["SAS làm thủ tục ở nhà ga T1 sân bay Munich (đúng như vé). Ghi chú cũ ghi T2 là sai.","SK2595 bay thứ Hai, nên ngày 26/10 có chuyến. Giờ trên vé là giờ mùa đông, sau khi châu Âu lùi đồng hồ.","Lịch mùa hè của SK662 là 10:20. Vé ghi 10:15, nên xem lại trạng thái chuyến 24 tiếng trước."],
+  note:"Chặng ngắn trong châu Âu không phát chăn gối, mang gối chữ U."},
+ {air:"Air China",col:"#B8222E",segs:[
+   {fl:"CA808",a:"KEF",an:"Keflavík",at:"13:45",ad:"31/10",b:"CPH",bn:"Copenhagen T3",bt:"17:55",bd:"31/10",dur:"3g10"},
+   {transit:"Cùng chuyến CA808, cùng máy bay A330-300 · dừng Copenhagen 2g35"},
+   {fl:"CA808",a:"CPH",an:"Copenhagen T3",at:"20:30",ad:"31/10",b:"PEK",bn:"Bắc Kinh T3",bt:"12:20",bd:"01/11",dur:"8g50"},
+   {transit:"Quá cảnh Bắc Kinh 8g20"},
+   {fl:"CA903",a:"PEK",an:"Bắc Kinh T3",at:"20:40",ad:"01/11",b:"SGN",bn:"Tân Sơn Nhất T2",bt:"01:10",bd:"02/11",dur:"5g30"}],
+  kv:[["Máy bay","A330-300 · Boeing 737 MAX (theo vé)"],["Ký gửi","1 kiện 23kg, gửi thẳng về SGN ✔"],["Xách tay","1 kiện 5kg, 55×40×20cm ✔"],["Phòng chờ PEK","CIP International Lounge, khu T3E. Sau cửa an ninh tầng 4, đi tàu điện APM sang T3E, qua xuất cảnh rẽ trái ở quầy hỏi đáp màu đỏ. Mở 06:30–03:00 ✔"],["Chỗ ngồi","Chọn khi check-in"]],
+  ok:["CA808 là đường bay mới Bắc Kinh – Copenhagen – Reykjavík, khai trương 26/10/2026, bay thứ Hai, thứ Năm, thứ Bảy. Ngày 31/10 là thứ Bảy, có chuyến.","Giờ dừng Copenhagen (đến 17:55, đi 20:30) lấy theo lịch hãng công bố. Đường bay mới hay đổi giờ, nên xem lại trước khi bay.","CA903 từ 25/10 bay thứ Năm, thứ Sáu, Chủ Nhật, 20:40 → 01:10. Ngày 01/11 là Chủ Nhật, có chuyến."],
+  note:""}
+];
+
+const CHECK=["Hộ chiếu có visa Schengen + bản chụp","Bảo hiểm du lịch","Thẻ Visa/Master đã mở thanh toán quốc tế","Ít tiền mặt CHF và EUR","Áo giữ nhiệt","Áo len hoặc lông vũ mỏng","Áo khoác chắn gió, chống nước (Iceland)","Mũ len, khăn, găng tay","Giày êm + giày chống nước","Đồ bơi cho Blue Lagoon","Gối chữ U","Thuốc cá nhân + toa thuốc","Kem dưỡng, son dưỡng","Bàn chải, kem đánh răng, dép","Ổ cắm đa năng, sạc dự phòng","eSIM châu Âu có Thụy Sĩ và Iceland","Bình nước cá nhân, ô gấp","Nồi du lịch + đồ ăn khô, chay"];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ccChip=(c,txt)=>`<span class="chip cc" style="background:${CC[c][1]}">${esc(txt||CC[c][0])}</span>`;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function wxIcon(w){
+ const sun='<circle cx="32" cy="30" r="13" fill="#FFC93C"/><g stroke="#FFC93C" stroke-width="4" stroke-linecap="round"><path d="M32 6v5M32 49v5M8 30h5M51 30h5M15 13l3.5 3.5M45.5 43.5 49 47M15 47l3.5-3.5M45.5 16.5 49 13"/></g><circle cx="27" cy="29" r="1.8" fill="#6B4A00"/><circle cx="37" cy="29" r="1.8" fill="#6B4A00"/><path d="M28 34q4 3 8 0" stroke="#6B4A00" stroke-width="2" fill="none" stroke-linecap="round"/>';
+ const cloud='<path d="M18 46a10 10 0 0 1 1-20 13 13 0 0 1 25 3 9 9 0 0 1 2 17z" fill="#CFE3F5" stroke="#8DB6DA" stroke-width="2"/><circle cx="28" cy="36" r="1.8" fill="#4A6A8A"/><circle cx="38" cy="36" r="1.8" fill="#4A6A8A"/><path d="M30 40q3 2 6 0" stroke="#4A6A8A" stroke-width="2" fill="none" stroke-linecap="round"/>';
+ const m={sun:sun,
+  cloud:'<circle cx="42" cy="20" r="10" fill="#FFC93C"/>'+cloud,
+  rain:cloud+'<g stroke="#3FA6EE" stroke-width="3" stroke-linecap="round"><path d="M22 52l-2 6M32 52l-2 6M42 52l-2 6"/></g>',
+  snow:cloud+'<g fill="#9FD4FF"><circle cx="21" cy="55" r="3"/><circle cx="32" cy="58" r="3"/><circle cx="43" cy="55" r="3"/></g>',
+  wind:cloud+'<g stroke="#8DB6DA" stroke-width="3" fill="none" stroke-linecap="round"><path d="M10 54h26a4 4 0 1 0-4-4M14 60h30a4 4 0 1 1-4 4"/></g>'};
+ return `<svg class="wx-ico" viewBox="0 0 64 66" aria-hidden="true">${m[w]||sun}</svg>`;
+}
+const windy=p=>`https://www.windy.com/${p.lat}/${p.lon}?${p.lat},${p.lon},10`;
+const ytLive=q=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=EgJAAQ%253D%253D`;
+function placeBtns(p){
+ let h=`<a class="btn sky" href="${windy(p)}" target="_blank" rel="noopener">Dự báo trực tiếp</a>`;
+ if(p.cam) h+=`<a class="btn peach" href="${ytLive(p.cam)}" target="_blank" rel="noopener"><span class="dot"></span>Live cam</a>`;
+ if(p.lfi) h+=`<a class="btn mint" href="../">Cực quang</a>`;
+ if(p.lfi) h+=`<a class="btn mint" href="https://livefromiceland.is/" target="_blank" rel="noopener">Cam Iceland</a><a class="btn sky" href="https://umferdin.is/en" target="_blank" rel="noopener">Tình trạng đường</a>`;
+ return h;
+}
+
+/* time helpers */
+let override=null;
+function now(){return override?new Date(override):new Date()}
+function seg(t){for(const s of S){if(t<new Date(s.to))return s}return S[S.length-1]}
+function fmtTime(t,tz){const d=new Date(t.getTime()+tz*3600e3);return String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
+function localDate(t,tz){return new Date(t.getTime()+tz*3600e3).toISOString().slice(0,10)}
+function tzName(tz){return {7:"Giờ Việt Nam",3:"Giờ Qatar",2:"Giờ châu Âu (mùa hè)",1:"Giờ châu Âu (mùa đông)",0:"Giờ Iceland",8:"Giờ Bắc Kinh"}[tz]||""}
+
+const SCN={
+ CH:'<rect width="200" height="240" fill="#BFE6FF"/><circle cx="160" cy="40" r="16" fill="#FFE07A"/><path d="M-10 150 L40 70 L70 110 L105 50 L150 120 L175 85 L215 150 Z" fill="#8EA9C7"/><path d="M40 70 L52 89 L45 86 L36 92 L30 86 Z M105 50 L120 74 L110 70 L100 78 L92 70 Z M175 85 L185 100 L178 98 L170 104 Z" fill="#fff"/><rect y="140" width="200" height="100" fill="#9ED18B"/><g fill="#F2B632"><path d="M14 150 l8 -22 l8 22z"/><path d="M168 152 l9 -26 l9 26z"/><path d="M184 160 l7 -18 l7 18z"/></g><g fill="#C9B79C"><rect x="0" y="150" width="200" height="8"/><path d="M8 158 h22 v40 h-4 a7 9 0 0 0 -14 0 h-4z M38 158 h22 v40 h-4 a7 9 0 0 0 -14 0 h-4z M140 158 h22 v40 h-4 a7 9 0 0 0 -14 0 h-4z M170 158 h22 v40 h-4 a7 9 0 0 0 -14 0 h-4z"/></g><g><rect x="6" y="134" width="44" height="16" rx="4" fill="#D7262E"/><rect x="52" y="134" width="40" height="16" rx="4" fill="#D7262E"/><rect x="132" y="134" width="40" height="16" rx="4" fill="#D7262E"/><g fill="#CFEFFF"><rect x="12" y="137" width="10" height="6" rx="1"/><rect x="26" y="137" width="10" height="6" rx="1"/><rect x="58" y="137" width="10" height="6" rx="1"/><rect x="72" y="137" width="10" height="6" rx="1"/><rect x="138" y="137" width="10" height="6" rx="1"/><rect x="152" y="137" width="10" height="6" rx="1"/></g></g>',
+ DE:'<rect width="200" height="240" fill="#FFE1CC"/><circle cx="40" cy="44" r="15" fill="#FFB86B"/><path d="M-10 160 Q40 110 90 140 Q140 100 210 150 L210 240 L-10 240Z" fill="#7FB77E"/><g fill="#F7F3EA"><rect x="136" y="70" width="34" height="62"/><rect x="128" y="96" width="14" height="40"/><rect x="164" y="88" width="14" height="48"/></g><g fill="#4A6FB5"><path d="M134 70 l19 -24 l19 24z"/><path d="M126 96 l9 -16 l9 16z"/><path d="M162 88 l9 -16 l9 16z"/></g><g fill="#8EA9C7"><rect x="146" y="84" width="5" height="9" rx="2"/><rect x="156" y="84" width="5" height="9" rx="2"/><rect x="151" y="104" width="6" height="12" rx="3"/></g><g fill="#E8892B"><circle cx="18" cy="150" r="14"/><circle cx="196" cy="150" r="12"/></g><rect y="180" width="200" height="60" fill="#6AA56C"/>',
+ IS:'<rect width="200" height="240" fill="#1B2A4A"/><path d="M-10 70 Q40 30 90 70 T210 60 L210 100 Q150 80 100 110 T-10 110Z" fill="#4FD9AE" opacity=".55"/><path d="M-10 90 Q60 60 110 95 T210 85 L210 105 Q150 100 100 125 T-10 125Z" fill="#FF79AA" opacity=".35"/><g fill="#fff"><circle cx="20" cy="20" r="1.5"/><circle cx="70" cy="34" r="1.2"/><circle cx="130" cy="18" r="1.6"/><circle cx="180" cy="40" r="1.2"/><circle cx="160" cy="12" r="1"/></g><path d="M-10 170 L50 120 L90 150 L140 110 L210 160 L210 240 L-10 240Z" fill="#3B4A63"/><path d="M50 120 L62 130 L40 132Z M140 110 L154 121 L128 122Z" fill="#DDEFFF"/><rect y="180" width="200" height="60" fill="#2A2A30"/><g fill="#9FE1FF"><path d="M20 188 l12 -10 l10 12z"/><path d="M160 192 l14 -12 l8 14z"/><path d="M178 200 l8 -8 l6 9z"/></g>',
+ VN:'<rect width="200" height="240" fill="#FFF0C9"/><circle cx="150" cy="46" r="20" fill="#FFC93C"/><path d="M30 60 l40 -8 l6 4 l-28 12 l14 10 l-4 3 l-18 -8 l-10 4z" fill="#3FA6EE"/><rect y="180" width="200" height="60" fill="#F5D59A"/><g><path d="M20 182 Q24 120 30 110" stroke="#8B6A3E" stroke-width="5" fill="none"/><path d="M30 110 q-24 -6 -30 8 M30 110 q22 -8 30 6 M30 110 q-10 -18 -26 -16 M30 110 q8 -20 26 -14" stroke="#2FBF94" stroke-width="6" fill="none" stroke-linecap="round"/></g><rect x="160" y="150" width="28" height="36" rx="5" fill="#FF8F7A"/><rect x="168" y="142" width="12" height="9" rx="3" fill="none" stroke="#FF8F7A" stroke-width="3"/>',
+ AIR:'<rect width="200" height="240" fill="#AEDBFF"/><g fill="#fff"><ellipse cx="40" cy="190" rx="50" ry="22"/><ellipse cx="160" cy="200" rx="56" ry="24"/><ellipse cx="100" cy="220" rx="70" ry="22"/><ellipse cx="160" cy="70" rx="26" ry="10"/><ellipse cx="30" cy="96" rx="22" ry="8"/></g><path d="M60 50 l60 -14 l8 5 l-40 18 l20 14 l-6 4 l-26 -11 l-14 6z" fill="#E0538A"/>',
+ NIGHT:'<rect width="200" height="240" fill="#22305A"/><circle cx="160" cy="44" r="14" fill="#FFE9A6"/><circle cx="166" cy="40" r="12" fill="#22305A"/><g fill="#fff"><circle cx="30" cy="30" r="1.4"/><circle cx="90" cy="20" r="1.2"/><circle cx="120" cy="60" r="1"/></g><rect y="170" width="200" height="70" fill="#34416B"/><g fill="#FFC93C"><rect x="10" y="160" width="40" height="10" rx="2"/><rect x="60" y="150" width="30" height="20" rx="2"/><rect x="110" y="156" width="50" height="14" rx="2"/></g><path d="M40 90 l50 -12 l6 4 l-34 15 l17 12 l-5 3 l-22 -9 l-12 5z" fill="#fff" opacity=".9"/>'
+};
+function sceneKey(s){if(s.kind==="fly")return "AIR";if(s.kind==="transit")return "NIGHT";if(s.kind==="home"||s.kind==="done")return "VN";return {CH:"CH",IT:"CH",DE:"DE",IS:"IS"}[s.cc]||"AIR"}
+
+function renderHome(){
+ const t=now(),s=seg(t),p=P[s.p];
+ $("#h-where").textContent=s.where;
+ $("#h-title").textContent=s.title;
+ const start=new Date("2026-10-19T13:00Z"),end=new Date("2026-11-01T18:10Z");
+ let sub="",extra="";
+ if(t<start){
+  const ms=start-t,d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);
+  sub="Còn bấy nhiêu nữa là QR971 cất cánh lúc 20:00 ngày 19/10:";
+  extra=`<div class="countdown"><div class="cd"><b>${d}</b><span>ngày</span></div><div class="cd"><b>${h}</b><span>giờ</span></div><div class="cd"><b>${m}</b><span>phút</span></div></div>`;
+ } else if(t>end){sub="Chuyến đi đã trọn vẹn. Nhớ xem lại ảnh Bernina và Jökulsárlón nhé!"}
+ else{const i=Math.max(1,Math.ceil((t-new Date("2026-10-18T17:00Z"))/864e5));sub=`Ngày ${Math.min(i,15)}/15 của hành trình`}
+ $("#h-sub").textContent=sub;$("#h-extra").innerHTML=extra;
+ {const sc=$("#scene");if(sc)sc.innerHTML=SCN[sceneKey(s)];}
+
+ $("#c-loc").textContent=fmtTime(t,s.tz);$("#c-loc-z").textContent=tzName(s.tz);
+ $("#c-loc-l").textContent=s.kind==="fly"?"Giờ nơi vừa cất cánh":"Giờ nơi Qi ở";
+ $("#c-vn").textContent=fmtTime(t,7);
+ $("#c-diff").textContent=s.tz===7?"cùng giờ":`VN nhanh hơn ${7-s.tz} tiếng`;
+
+ $("#h-wx").innerHTML=wxCard(p,s,t);
+
+ const ld=localDate(t,s.tz);let day=DAYS.find(x=>x.d===ld);
+ if(t<start) day=DAYS[0];
+ const al=[];
+ if(t<new Date("2026-10-26T06:00Z")) al.push(["Sáng 26/10 Qi tách đoàn","Bay SK662 lúc 10:15 từ Munich, phải rời khách sạn khoảng 07:30. Báo HDV trước để sắp xếp."]);
+ if(t<new Date("2026-10-19T10:00Z")) al.push(["Gói vali dưới 23kg","Qatar cho 25kg nhưng SAS (26/10) và Air China chỉ 23kg."]);
+ if(day&&day.warn&&t>=start) al.unshift([day.t,day.tip]);
+ $("#h-alerts").innerHTML=al.slice(0,3).map(a=>`<div class="alert"><div class="ic">!</div><div style="font-size:13.5px"><b>${esc(a[0])}</b><br>${esc(a[1])}</div></div>`).join("");
+
+ if(day){
+  $("#h-agenda").innerHTML=`<div class="eyebrow">${t<start?"Ngày khởi hành":"Lịch hôm nay"} · ${day.d.slice(8)}/${day.d.slice(5,7)}</div><h3 style="font-size:19px;margin-top:2px">${esc(day.t)}</h3>
+  <ul class="agenda">${day.ag.map(a=>`<li><time>${esc(a[0])}</time><span>${esc(a[1])}</span></li>`).join("")}</ul>${day.tip&&!day.warn?`<div class="tip">${esc(day.tip)}</div>`:""}`;
+  $("#h-agenda").hidden=false;
+ } else $("#h-agenda").hidden=true;
+}
+function nextPlaceHtml(t,s){
+ const i=S.indexOf(s);for(let j=i+1;j<S.length;j++){if(S[j].p!==s.p&&S[j].kind!=="done"){const q=P[S[j].p];return `<div style="margin-top:12px;padding-top:10px;border-top:2px dashed var(--line);font-size:13.5px"><span class="eyebrow">Sắp đến</span><br><b>${esc(q.n)}</b> · ${q.hi}°/${q.lo}°C · ${esc(q.note)}</div>`}}return "";
+}
+
+function renderRoute(){
+ const L=[["VN","TP.HCM","19/10"],["QA","Doha","19–20/10"],["CH","Zurich","20/10"],["IT","Tirano","21/10"],["CH","Alps","22–24/10"],["DE","Munich","24–26/10"],["DK","Copenhagen","26/10"],["IS","Iceland","26–31/10"],["CN","Bắc Kinh","01/11"],["VN","Về nhà","02/11"]];
+ $("#route").innerHTML=L.map(l=>`<div class="leg" style="background:${CC[l[0]][1]}"><b>${l[1]}</b><span>${l[2]}</span></div>`).join("");
+}
+
+function renderDays(){
+ const t=now(),s=seg(t),ld=localDate(t,s.tz);
+ const wd=["CN","T2","T3","T4","T5","T6","T7"];
+ $("#days").innerHTML=DAYS.map(d=>{const dt=new Date(d.d+"T12:00Z");return `<div class="day ${d.d===ld?"now":""}" id="d-${d.d}">
+  <div class="date" style="background:${CC[d.cc][1]}"><b>${d.d.slice(8)}</b><span>${wd[dt.getUTCDay()]} · th${+d.d.slice(5,7)}</span></div>
+  <div class="card"><h3>${esc(d.t)}</h3>${d.who?`<div class="who muted">${esc(d.who)}</div>`:""}
+  <ul class="agenda">${d.ag.map(a=>`<li><time>${esc(a[0])}</time><span>${esc(a[1])}</span></li>`).join("")}</ul>
+  <div class="stops">${d.stops.map(x=>`<span class="stop">${esc(x)}</span>`).join("")}</div>
+  ${d.tip?`<div class="tip ${d.warn?"w":""}">${esc(d.tip)}</div>`:""}</div></div>`}).join("");
+}
+
+function renderFlights(){
+ $("#flights").innerHTML=FLIGHTS.map(f=>`<article class="card flight">
+  <div class="fh" style="background:${f.col}"><h3>${esc(f.air)}</h3><span style="font-size:13px;font-weight:700">${f.code?`Mã đặt chỗ <code class="copy" data-copy="${f.code}" style="background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.5)">${f.code}</code>`:f.segs.filter(g=>g.fl).map(g=>g.fl).filter((v,i,a)=>a.indexOf(v)===i).join(" · ")}</span></div>
+  <div class="fb">${f.segs.map(g=>g.transit?`<div class="transit">${esc(g.transit)}</div>`:`
+   <div><div class="eyebrow">${g.fl} · ${g.ad}</div><div class="seg">
+    <div class="ap"><b>${g.a}</b><span class="t">${g.at}</span><br><span>${esc(g.an)}</span></div>
+    <div class="mid">${esc(g.dur)}<i></i>✈</div>
+    <div class="ap r"><b>${g.b}</b><span class="t">${g.bt}${g.bd!==g.ad?` <small>(${g.bd})</small>`:""}</span><br><span>${esc(g.bn)}</span></div>
+   </div></div>`).join("")}
+   <dl class="kv">${f.tno?`<dt>Số vé</dt><dd>${/\d/.test(f.tno)?`<code class="copy" data-copy="${f.tno}">${f.tno}</code>`:esc(f.tno)}</dd>`:""}${f.kv.map(k=>`<dt>${esc(k[0])}</dt><dd>${esc(k[1])}</dd>`).join("")}</dl>
+   <div class="okbox"><b>Đã đối chiếu với lịch của hãng</b><ul>${f.ok.map(d=>`<li>${esc(d)}</li>`).join("")}</ul></div>${f.note?`<div class="tip">${esc(f.note)}</div>`:""}
+  </div></article>`).join("");
+}
+
+let wxFilter="all";
+function renderPlaces(){
+ const groups=[["all","Tất cả"],["CH","Thụy Sĩ"],["DE","Đức"],["IS","Iceland"],["QA","Quá cảnh"]];
+ $("#wx-filter").innerHTML=groups.map(g=>`<button data-f="${g[0]}" aria-pressed="${wxFilter===g[0]}">${g[1]}</button>`).join("");
+ const ids=Object.keys(P).filter(k=>wxFilter==="all"||P[k].cc===wxFilter||(wxFilter==="CH"&&P[k].cc==="IT")||(wxFilter==="QA"&&["QA","CN","VN"].includes(P[k].cc)));
+ $("#places").innerHTML=ids.map(k=>{const p=P[k];return `<div class="card place">${wxIcon(p.w)}<div style="min-width:0">
+  <h3>${esc(p.n)}</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px">${ccChip(p.cc)}${placeTemps(k)}</div>
+  <div class="muted" style="font-size:13px;margin-top:4px">${esc(p.note)}</div><div class="btns">${placeBtns(p)}</div></div></div>`}).join("");
+}
+
+function renderCheck(){
+ const done=store.get("qi-check",{});
+ $("#check").innerHTML=CHECK.map((c,i)=>`<li><label for="ck${i}"><input type="checkbox" id="ck${i}" data-i="${i}" ${done[i]?"checked":""}><span>${esc(c)}</span></label></li>`).join("");
+}
+
+function buildPreview(){
+ const opts=[`<option value="">Hôm nay (thật)</option>`].concat(DAYS.map(d=>`<option value="${d.d}">Xem thử ${d.d.slice(8)}/${d.d.slice(5,7)}</option>`));
+ $("#when").innerHTML=opts.join("");
+}
+function applyPreview(v){
+ if(!v){override=null}else if(v==="2026-11-02"){override=new Date("2026-11-01T20:00Z").getTime()}else{
+  const d=DAYS.find(x=>x.d===v);const tz={VN:7,QA:3,CH:2,IT:2,DE:v>="2026-10-25"?1:2,IS:0,CN:8}[d.cc];
+  override=new Date(v+"T12:00Z").getTime()-tz*3600e3;
+ }
+ renderAll();
+}
+
+function renderAll(){renderHome();renderDays()}
+
+/* tabs */
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ document.querySelectorAll(".tab").forEach(s=>s.hidden=s.id!=="t-"+b.dataset.tab);
+ store.set("qi-tab",b.dataset.tab);window.scrollTo({top:0});
+ if(b.dataset.tab==="plan"){const n=document.querySelector(".day.now");if(n)setTimeout(()=>n.scrollIntoView({block:"center",behavior:"smooth"}),60)}
+}));
+$("#wx-filter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;wxFilter=b.dataset.f;renderPlaces()});
+$("#check").addEventListener("change",e=>{const d=store.get("qi-check",{});d[e.target.dataset.i]=e.target.checked;store.set("qi-check",d)});
+$("#when").addEventListener("change",e=>applyPreview(e.target.value));
+let toastT;
+document.addEventListener("click",e=>{const c=e.target.closest(".copy");if(!c)return;const v=c.dataset.copy;
+ const show=m=>{const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1600)};
+ try{navigator.clipboard.writeText(v).then(()=>show("Đã chép "+v),()=>{selectEl(c);show("Bôi đen sẵn, bấm Sao chép")})}catch(err){selectEl(c);show("Bôi đen sẵn, bấm Sao chép")}});
+function selectEl(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+
+/* ===== GitHub version: live weather, real location, private unlock ===== */
+var r0=x=>Math.round(x);
+var WMO=c=>c===0?["Trời quang","sun"]:c<=2?["Ít mây","cloud"]:c===3?["Nhiều mây","cloud"]:c<=48?["Sương mù","cloud"]:c<=57?["Mưa phùn","rain"]:c<=67?["Mưa","rain"]:c<=77?["Có tuyết","snow"]:c<=82?["Mưa rào","rain"]:c<=86?["Mưa tuyết","snow"]:["Dông","rain"];
+var PD={hcm:["2026-10-19","2026-11-02"],doh:["2026-10-20"],zrh:["2026-10-20"],ber:["2026-10-21"],tir:["2026-10-21"],int:["2026-10-22"],mur:["2026-10-23"],luz:["2026-10-24"],muc:["2026-10-24","2026-10-26"],neu:["2026-10-25"],rkv:["2026-10-26","2026-10-31"],jok:["2026-10-27"],vik:["2026-10-27"],grv:["2026-10-28"],gc:["2026-10-29"],snf:["2026-10-30"],pek:["2026-11-01"]};
+var ddmm=d=>d.slice(8)+"/"+d.slice(5,7);
+var WX=store.get("qi-wx",null);
+var live=k=>WX&&WX.data&&WX.data[k];
+function tripFc(k){const w=live(k);if(!w)return null;const today=localDate(now(),7);
+ for(const d of PD[k]||[]){if(d>=today&&w.daily[d])return [d,w.daily[d]]}return null}
+function fcLine(k){const f=tripFc(k);if(!f)return "";const [d,v]=f;return `<div class="fc">Dự báo ngày Qi ở đây (${ddmm(d)}): <b>${r0(v[0])}° / ${r0(v[1])}°C</b> · ${WMO(v[2])[0]}</div>`}
+function wxCard(p,s,t){
+ const k=s.p,w=live(k),label=s.kind==="fly"?"nơi sắp đến":"nơi Qi ở";let h;
+ if(w&&w.cur){const [desc,ic]=WMO(w.cur.code),td=w.daily[localDate(t,s.tz)];
+  h=`<div class="eyebrow">Thời tiết ${label} · <span class="live">trực tiếp</span></div>
+  <div class="wx" style="margin-top:8px">${wxIcon(ic)}<div style="min-width:0"><h3 style="font-size:18px">${esc(p.n)} ${ccChip(p.cc)}</h3>
+  <div class="wx-temp">${r0(w.cur.t)}°<small> ${desc}</small></div>
+  <div class="muted" style="font-size:13px">${td?`Hôm nay ${r0(td[0])}° / ${r0(td[1])}°C · `:""}gió ${r0(w.cur.wind)} km/h</div>${fcLine(k)}
+  <div class="muted" style="font-size:13px;margin-top:4px">${esc(p.note)}</div></div></div>`;
+ } else {
+  h=`<div class="eyebrow">Thời tiết ${label} · trung bình cuối tháng 10</div>
+  <div class="wx" style="margin-top:8px">${wxIcon(p.w)}<div style="min-width:0"><h3 style="font-size:18px">${esc(p.n)} ${ccChip(p.cc)}</h3>
+  <div class="wx-temp">${p.hi}°<small> / ${p.lo}°C</small></div><div class="muted" style="font-size:13px">${esc(p.note)}</div></div></div>`;
+ }
+ return h+`<div class="btns">${placeBtns(p)}</div>${nextPlaceHtml(t,s)}`+(WX&&WX.at?`<div class="muted" style="font-size:11px;margin-top:8px">Cập nhật ${new Date(WX.at).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})} · Open-Meteo</div>`:"");
+}
+function placeTemps(k){const p=P[k],w=live(k);
+ if(w&&w.cur){return `<span class="temps">${r0(w.cur.t)}°C</span><span class="live">bây giờ · ${WMO(w.cur.code)[0]}</span><div class="fc" style="flex-basis:100%">${tripFc(k)?fcLine(k).replace(/^<div class="fc">|<\/div>$/g,""):`Trung bình cuối tháng 10: ${p.hi}° / ${p.lo}°C`}</div>`}
+ return `<span class="temps">${p.hi}° / ${p.lo}°C</span><span class="muted" style="font-size:12px">trung bình</span>`}
+async function fetchWx(force){
+ if(!force&&WX&&Date.now()-WX.at<30*60e3)return;
+ const keys=Object.keys(P);
+ const u="https://api.open-meteo.com/v1/forecast?latitude="+keys.map(k=>P[k].lat).join(",")+"&longitude="+keys.map(k=>P[k].lon).join(",")+"&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=16";
+ try{const res=await fetch(u);if(!res.ok)throw 0;let j=await res.json();if(!Array.isArray(j))j=[j];
+  const data={};keys.forEach((k,i)=>{const x=j[i];if(!x)return;const daily={};(x.daily.time||[]).forEach((d,n)=>daily[d]=[x.daily.temperature_2m_max[n],x.daily.temperature_2m_min[n],x.daily.weather_code[n]]);
+   data[k]={cur:x.current?{t:x.current.temperature_2m,code:x.current.weather_code,wind:x.current.wind_speed_10m}:null,daily}});
+  WX={at:Date.now(),data};store.set("qi-wx",WX);renderHome();renderPlaces();
+ }catch(e){}
+}
+
+/* real location */
+var GPS=null;
+var hav=(a,b,c,d)=>{const R=6371,t=Math.PI/180,x=Math.sin((c-a)*t/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin((d-b)*t/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+var PIN='<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M12 22s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z" fill="#E0538A"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>';
+function renderGps(msg){const el=$("#h-gps");
+ if(!("geolocation" in navigator)){el.hidden=true;return}
+ if(!GPS){el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Vị trí thật</div><div style="font-size:13.5px">Bật để xem thời tiết ngay chỗ Qi đứng và điểm hành trình gần nhất.</div><div class="btns"><button class="btn peach" type="button" id="gps-btn">Dùng vị trí của tôi</button></div>${msg?`<div class="muted" style="font-size:12px;margin-top:6px">${esc(msg)}</div>`:""}</div></div>`;return}
+ let best=null;for(const k in P){const dk=hav(GPS.lat,GPS.lon,P[k].lat,P[k].lon);if(!best||dk<best[1])best=[k,dk]}
+ var near=best[1]<1?"Ngay tại":best[1]<60?"Gần":"Cách";
+ const w=GPS.wx;const wl=w?`<div class="wx-temp" style="font-size:26px">${r0(w.t)}°<small> ${WMO(w.code)[0]}${w.hi!=null?` · ${r0(w.hi)}° / ${r0(w.lo)}°C`:""}</small></div>`:`<div class="muted" style="font-size:13px">Đang lấy thời tiết…</div>`;
+ el.innerHTML=`<div class="gps">${PIN}<div style="min-width:0"><div class="eyebrow">Vị trí thật · <span class="live">${new Date(GPS.at).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})}</span></div>
+  <div style="font-weight:700">${near} ${esc(P[best[0]].n)}${best[1]>=1?` · ${best[1]<10?best[1].toFixed(1):r0(best[1])} km`:""}</div>${wl}
+  <div class="btns"><button class="btn sky" type="button" id="gps-btn">Cập nhật vị trí</button><a class="btn mint" href="https://www.google.com/maps/search/?api=1&query=${GPS.lat},${GPS.lon}" target="_blank" rel="noopener">Xem bản đồ</a></div></div></div>`;
+}
+function getGps(){renderGps("Đang lấy vị trí…");
+ navigator.geolocation.getCurrentPosition(async pos=>{
+  GPS={lat:pos.coords.latitude,lon:pos.coords.longitude,at:Date.now()};store.set("qi-gps-on",true);renderGps();
+  try{const j=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${GPS.lat.toFixed(3)}&longitude=${GPS.lon.toFixed(3)}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`)).json();
+   GPS.wx={t:j.current.temperature_2m,code:j.current.weather_code,hi:j.daily.temperature_2m_max[0],lo:j.daily.temperature_2m_min[0]};renderGps()}catch(e){}
+ },err=>{store.set("qi-gps-on",false);renderGps(err.code===1?"Qi chưa cho phép vị trí. Vào Cài đặt > Safari > Vị trí để bật lại.":"Chưa lấy được vị trí, thử lại sau.")},{enableHighAccuracy:false,timeout:15000,maximumAge:600000});
+}
+document.addEventListener("click",e=>{if(e.target.closest("#gps-btn"))getGps()});
+
+/* private unlock */
+var PUB={FLIGHTS,DAYS,book:$("#sec-book").innerHTML,contacts:$("#sec-contacts").innerHTML};
+var u8=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+var b64=a=>btoa(String.fromCharCode(...new Uint8Array(a)));
+var META=null;
+async function meta(){if(!META){const r=await fetch("secret.json",{cache:"no-cache"});META=await r.json()}return META}
+async function openWith(key,m){const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:u8(m.iv)},key,u8(m.ct));return JSON.parse(new TextDecoder().decode(pt))}
+function setLock(on){$("#lock-on").hidden=!on;$("#lock-off").hidden=on;$("#lock-hint").hidden=on}
+function applySecret(d){FLIGHTS=d.FLIGHTS;DAYS=d.DAYS;$("#sec-book").innerHTML=d.book;$("#sec-contacts").innerHTML=d.contacts;renderFlights();renderAll();setLock(true)}
+$("#unlock").addEventListener("submit",async e=>{e.preventDefault();const pw=$("#pw").value;if(!pw)return;
+ $("#pw-btn").disabled=true;$("#lockmsg").textContent="Đang mở khóa…";
+ try{const m=await meta();const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:u8(m.salt),iterations:m.iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},true,["decrypt"]);
+  const d=await openWith(key,m);applySecret(d);store.set("qi-key",{salt:m.salt,k:b64(await crypto.subtle.exportKey("raw",key))});$("#pw").value="";$("#lockmsg").textContent="";
+ }catch(err){$("#lockmsg").textContent="Mật khẩu chưa đúng, Qi thử lại nhé."}
+ $("#pw-btn").disabled=false});
+$("#relock").addEventListener("click",()=>{store.set("qi-key",null);FLIGHTS=PUB.FLIGHTS;DAYS=PUB.DAYS;$("#sec-book").innerHTML=PUB.book;$("#sec-contacts").innerHTML=PUB.contacts;renderFlights();renderAll();setLock(false)});
+(async()=>{const s=store.get("qi-key",null);if(!s)return;try{const m=await meta();if(m.salt!==s.salt)throw 0;
+ const key=await crypto.subtle.importKey("raw",u8(s.k),{name:"AES-GCM"},false,["decrypt"]);applySecret(await openWith(key,m))}catch(e){store.set("qi-key",null)}})();
+
+/* boot */
+renderGps();renderHome();renderPlaces();fetchWx();setInterval(()=>fetchWx(),30*60e3);
+if(store.get("qi-gps-on",false)&&navigator.permissions){navigator.permissions.query({name:"geolocation"}).then(p=>{if(p.state==="granted")getGps()}).catch(()=>{})}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+buildPreview();renderRoute();renderFlights();renderPlaces();renderCheck();renderAll();
+const lastTab=store.get("qi-tab","home");if(lastTab!=="home"){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`);if(b)b.click()}
+setInterval(()=>{if(!override)renderHome()},30000);
+})();
+</script>
+
+</body>
+</html>
