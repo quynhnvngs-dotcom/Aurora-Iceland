@@ -1,0 +1,36 @@
+name: Aurora push
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: aurora-push
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save --no-audit --no-fund web-push@3.6.7
+      - name: Kiểm tra aurora và gửi thông báo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VAPID_PUBLIC: BAKiLSETeUDeIpkjl8M4fDOZ353n05rYWbhNopPORd46xcu552mwaWe4zNTJeM4A-n6l9nYpgSIEyU_yv4opcqE
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+        run: node push/check.mjs
+      - name: Lưu trạng thái
+        run: |
+          if [ -n "$(git status --porcelain push/state.json)" ]; then
+            git config user.name "aurora-bot"
+            git config user.email "aurora-bot@users.noreply.github.com"
+            git add push/state.json
+            git commit -m "Cập nhật trạng thái thông báo [skip ci]"
+            git push
+          fi

@@ -1,7 +1,7 @@
 // Service worker: cho app mở được ngoài mạng và tự cập nhật khi có bản mới
-const VERSION = 'aurora-v6';
+const VERSION = 'aurora-v7';
 const SHELL = [
-  './', 'index.html', 'styles.css?v=6', 'app.js?v=6', 'astro.js?v=6', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css?v=7', 'app.js?v=7', 'astro.js?v=7', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 
@@ -35,10 +35,20 @@ self.addEventListener('fetch', (e) => {
   }
   // Dữ liệu NOAA / Open-Meteo: luôn lấy trực tiếp (app tự lưu bản gần nhất)
 });
+// Thông báo đẩy từ máy chủ (GitHub Actions) khi app đang tắt
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { title: 'Aurora Iceland', body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Aurora Iceland', {
+    body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png',
+    tag: d.tag || 'aurora', renotify: true, data: { url: d.url || './' },
+  }));
+});
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  e.waitUntil(self.clients.matchAll({ type: 'window' }).then((list) => {
+  const url = (e.notification.data && e.notification.data.url) || './';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
     for (const c of list) if ('focus' in c) return c.focus();
-    return self.clients.openWindow('./');
+    return self.clients.openWindow(url);
   }));
 });

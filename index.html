@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 <header class="top">
@@ -232,6 +232,13 @@
         <option value="me">Chỗ tôi đang đứng (cần vị trí)</option>
       </select></label>
     <p class="muted small" id="set-perm"></p>
+    <div class="push-box">
+      <h4>Thông báo khi tắt app</h4>
+      <p class="muted small">Máy chủ kiểm tra mỗi khoảng 10 phút vào ban đêm ở Iceland (Kp, gió Mặt Trời, mây, bóng tối) và gửi thông báo tới điện thoại kể cả khi app đang tắt, ví dụ: “Khoảng 40 phút nữa có thể thấy aurora ở Mývatn”. Dùng ngưỡng khả năng ở trên.</p>
+      <p class="small" id="push-status"></p>
+      <button class="btn" id="push-on" type="button">Bật thông báo khi tắt app</button>
+      <button class="btn ghost" id="push-off" type="button" hidden>Tắt thông báo nền</button>
+    </div>
     <div class="sheet-actions">
       <button class="btn ghost" id="set-test" type="button">Thử thông báo</button>
       <button class="btn" value="close">Xong</button>
@@ -239,7 +246,7 @@
   </form>
 </dialog>
 
-<script src="astro.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="astro.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

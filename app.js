@@ -828,6 +828,7 @@ function setupSettings() {
   };
   $('#btn-settings').addEventListener('click', () => {
     on.checked = settings.on; th.value = settings.th; thv.textContent = settings.th; scope.value = settings.scope; showPerm();
+    pushStatus();
     dlg.showModal();
   });
   on.addEventListener('change', async () => {
@@ -843,6 +844,57 @@ function setupSettings() {
     if (scope.value === 'me' && !S.me) locate();
   });
   $('#set-test').addEventListener('click', () => notify('Thử cảnh báo aurora', 'Thông báo đang hoạt động.'));
+  $('#push-on').addEventListener('click', pushSubscribe);
+  $('#push-off').addEventListener('click', pushUnsubscribe);
+}
+
+
+/* ---------- thông báo đẩy khi tắt app (máy chủ GitHub Actions) ---------- */
+const VAPID_PUBLIC = 'BAKiLSETeUDeIpkjl8M4fDOZ353n05rYWbhNopPORd46xcu552mwaWe4zNTJeM4A-n6l9nYpgSIEyU_yv4opcqE';
+const SUB_REPO = 'https://github.com/quynhnvngs-dotcom/Aurora-Iceland';
+const b64ToBytes = (s) => { const p = '='.repeat((4 - (s.length % 4)) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+const isStandalone = () => window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+async function pushStatus() {
+  const st = $('#push-status'), on = $('#push-on'), off = $('#push-off');
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    st.innerHTML = /iPhone|iPad/.test(navigator.userAgent) && !isStandalone()
+      ? '⚠️ Cần <b>cài app lên màn hình chính</b> (Safari → Chia sẻ → Thêm vào MH chính) rồi mở app từ biểu tượng. Cần iOS 16.4 trở lên.'
+      : '⚠️ Trình duyệt này không hỗ trợ thông báo đẩy.';
+    on.hidden = true; off.hidden = true; return;
+  }
+  const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+  const sent = lsGet('pushIssue');
+  if (sub && sent === sub.endpoint) { st.innerHTML = '✅ Đã đăng ký thông báo nền. Bạn sẽ nhận một thông báo xác nhận trong khoảng 10–20 phút.'; on.hidden = true; off.hidden = false; }
+  else if (sub) { st.innerHTML = '⏳ Còn một bước: gửi mã đăng ký lên GitHub (bấm nút bên dưới, rồi bấm <b>Create / Submit new issue</b>).'; on.textContent = 'Gửi mã đăng ký lên GitHub'; on.hidden = false; off.hidden = false; }
+  else { st.textContent = 'Chưa bật.'; on.textContent = 'Bật thông báo khi tắt app'; on.hidden = false; off.hidden = true; }
+}
+async function pushSubscribe() {
+  try {
+    if (Notification.permission !== 'granted') {
+      const p = await Notification.requestPermission();
+      if (p !== 'granted') { $('#push-status').textContent = 'Bạn chưa cho phép thông báo. Vào Cài đặt iPhone → Thông báo → Aurora để bật.'; return; }
+    }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
+    const data = { sub: sub.toJSON(), th: settings.th, app: 'aurora-iceland', at: new Date().toISOString() };
+    const body = 'Đăng ký nhận thông báo aurora khi tắt app. Bấm **Create** để gửi; không cần sửa gì.\n\n```json\n' + JSON.stringify(data) + '\n```';
+    const id = sub.endpoint.slice(-8);
+    window.open(`${SUB_REPO}/issues/new?title=${encodeURIComponent('push-subscribe ' + id)}&body=${encodeURIComponent(body)}`, '_blank');
+    lsSet('pushIssue', sub.endpoint);
+    settings.on = true; saveSettings();
+  } catch (e) {
+    $('#push-status').textContent = 'Không đăng ký được: ' + (e.message || e);
+  }
+  pushStatus();
+}
+async function pushUnsubscribe() {
+  try {
+    const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+    if (sub) await sub.unsubscribe();
+    lsSet('pushIssue', null);
+  } catch (_) { /* bỏ qua */ }
+  pushStatus();
 }
 
 /* ---------- vị trí ---------- */
