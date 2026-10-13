@@ -1,7 +1,7 @@
 // Service worker: cho app mở được ngoài mạng và tự cập nhật khi có bản mới
-const VERSION = 'aurora-v7';
+const VERSION = 'aurora-v8';
 const SHELL = [
-  './', 'index.html', 'styles.css?v=7', 'app.js?v=7', 'astro.js?v=7', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css?v=8', 'app.js?v=8', 'astro.js?v=8', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 

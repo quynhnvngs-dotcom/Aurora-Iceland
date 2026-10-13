@@ -278,3 +278,5 @@ a.cam-tile { text-decoration: none; color: var(--fg); }
 .push-box { margin-top: 12px; padding: 12px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
 .push-box h4 { margin: 0 0 4px; font-size: 15px; }
 .push-box .btn { width: 100%; margin-top: 8px; }
+.btn.link-like { display: block; text-align: center; text-decoration: none; }
+.push-box .btn[hidden] { display: none; }

@@ -846,6 +846,8 @@ function setupSettings() {
   $('#set-test').addEventListener('click', () => notify('Thử cảnh báo aurora', 'Thông báo đang hoạt động.'));
   $('#push-on').addEventListener('click', pushSubscribe);
   $('#push-off').addEventListener('click', pushUnsubscribe);
+  $('#push-copy').addEventListener('click', pushCopy);
+  $('#push-done').addEventListener('click', pushDone);
 }
 
 
@@ -854,19 +856,31 @@ const VAPID_PUBLIC = 'BAKiLSETeUDeIpkjl8M4fDOZ353n05rYWbhNopPORd46xcu552mwaWe4zN
 const SUB_REPO = 'https://github.com/quynhnvngs-dotcom/Aurora-Iceland';
 const b64ToBytes = (s) => { const p = '='.repeat((4 - (s.length % 4)) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
 const isStandalone = () => window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+function issueUrl(sub) {
+  const data = { sub: sub.toJSON(), th: settings.th, app: 'aurora-iceland', at: new Date().toISOString() };
+  const body = 'Đăng ký nhận thông báo aurora khi tắt app. Bấm **Create** để gửi; không cần sửa gì.\n\n```json\n' + JSON.stringify(data) + '\n```';
+  return { url: `${SUB_REPO}/issues/new?title=${encodeURIComponent('push-subscribe ' + sub.endpoint.slice(-8))}&body=${encodeURIComponent(body)}`, body };
+}
 async function pushStatus() {
-  const st = $('#push-status'), on = $('#push-on'), off = $('#push-off');
+  const st = $('#push-status'), on = $('#push-on'), off = $('#push-off'), link = $('#push-link'), copy = $('#push-copy'), done = $('#push-done');
+  [on, off, link, copy, done].forEach((b) => { b.hidden = true; });
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     st.innerHTML = /iPhone|iPad/.test(navigator.userAgent) && !isStandalone()
       ? '⚠️ Cần <b>cài app lên màn hình chính</b> (Safari → Chia sẻ → Thêm vào MH chính) rồi mở app từ biểu tượng. Cần iOS 16.4 trở lên.'
       : '⚠️ Trình duyệt này không hỗ trợ thông báo đẩy.';
-    on.hidden = true; off.hidden = true; return;
+    return;
   }
   const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
-  const sent = lsGet('pushIssue');
-  if (sub && sent === sub.endpoint) { st.innerHTML = '✅ Đã đăng ký thông báo nền. Bạn sẽ nhận một thông báo xác nhận trong khoảng 10–20 phút.'; on.hidden = true; off.hidden = false; }
-  else if (sub) { st.innerHTML = '⏳ Còn một bước: gửi mã đăng ký lên GitHub (bấm nút bên dưới, rồi bấm <b>Create / Submit new issue</b>).'; on.textContent = 'Gửi mã đăng ký lên GitHub'; on.hidden = false; off.hidden = false; }
-  else { st.textContent = 'Chưa bật.'; on.textContent = 'Bật thông báo khi tắt app'; on.hidden = false; off.hidden = true; }
+  if (sub && lsGet('pushSent') === sub.endpoint) {
+    st.innerHTML = '✅ Đã đăng ký thông báo nền. Bạn sẽ nhận thông báo xác nhận “Đã bật thông báo Aurora” trong khoảng 10–20 phút. Nếu sau 30 phút chưa có, bấm “Tắt” rồi đăng ký lại.';
+    off.hidden = false;
+  } else if (sub) {
+    const { url } = issueUrl(sub);
+    link.href = url; link.hidden = false; copy.hidden = false; done.hidden = false; off.hidden = false;
+    st.innerHTML = '⏳ <b>Còn 1 bước:</b> bấm nút xanh bên dưới để mở GitHub, rồi bấm <b>Create</b> (cần đăng nhập GitHub). Xong quay lại bấm “Tôi đã bấm Create”.';
+  } else {
+    st.textContent = 'Chưa bật.'; on.hidden = false;
+  }
 }
 async function pushSubscribe() {
   try {
@@ -877,22 +891,30 @@ async function pushSubscribe() {
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
-    const data = { sub: sub.toJSON(), th: settings.th, app: 'aurora-iceland', at: new Date().toISOString() };
-    const body = 'Đăng ký nhận thông báo aurora khi tắt app. Bấm **Create** để gửi; không cần sửa gì.\n\n```json\n' + JSON.stringify(data) + '\n```';
-    const id = sub.endpoint.slice(-8);
-    window.open(`${SUB_REPO}/issues/new?title=${encodeURIComponent('push-subscribe ' + id)}&body=${encodeURIComponent(body)}`, '_blank');
-    lsSet('pushIssue', sub.endpoint);
     settings.on = true; saveSettings();
   } catch (e) {
     $('#push-status').textContent = 'Không đăng ký được: ' + (e.message || e);
+    return;
   }
+  pushStatus();
+}
+async function pushCopy() {
+  const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+  if (!sub) return;
+  const { body } = issueUrl(sub);
+  try { await navigator.clipboard.writeText(body); $('#push-copy').textContent = 'Đã sao chép ✓'; }
+  catch (_) { $('#push-copy').textContent = 'Không sao chép được'; }
+}
+async function pushDone() {
+  const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+  if (sub) lsSet('pushSent', sub.endpoint);
   pushStatus();
 }
 async function pushUnsubscribe() {
   try {
     const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
     if (sub) await sub.unsubscribe();
-    lsSet('pushIssue', null);
+    lsSet('pushSent', null);
   } catch (_) { /* bỏ qua */ }
   pushStatus();
 }
