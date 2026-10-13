@@ -13,6 +13,7 @@ const MIN = 60e3, HOUR = 36e5;
 const STATE_FILE = 'push/state.json';
 const DRY = process.env.DRY_RUN === '1';
 
+if (!process.env.VAPID_PRIVATE) { console.error('THIẾU khóa VAPID_PRIVATE: vào Settings → Secrets and variables → Actions → New repository secret.'); process.exit(1); }
 webpush.setVapidDetails('mailto:aurora-iceland@users.noreply.github.com', process.env.VAPID_PUBLIC, process.env.VAPID_PRIVATE);
 
 // Tính vị trí Mặt Trời/Mặt Trăng: dùng lại astro.js của app
